@@ -1,0 +1,158 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/sunready
+bin/
+dist/
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+coverage.txt
+coverage.html
+*.coverprofile
+
+# Dependency directories (remove the comment below to include it)
+vendor/
+
+# Go workspace file
+go.work
+go.work.sum
+
+# Go sum backup files
+go.sum.backup
+
+# Build artifacts
+*.a
+*.o
+*.prof
+
+# Debug files
+__debug_bin*
+debug
+debug.test
+
+# Air live reload
+tmp/
+.air.toml.local
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+
+# IDE - VSCode
+.vscode/
+*.code-workspace
+
+# IDE - JetBrains
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# IDE - Vim
+*.swp
+*.swo
+*~
+.*.swp
+.*.swo
+
+# IDE - Emacs
+*~
+\#*\#
+.\#*
+
+# IDE - Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# OS - macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# OS - Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# OS - Linux
+.directory
+.Trash-*
+
+# Logs
+*.log
+logs/
+log/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*~.nib
+
+# Docker
+.dockerignore.local
+
+# CI/CD
+.gitlab-ci-local/
+
+# Documentation
+docs/_build/
+
+# Compiled Object files, Static and Dynamic libs
+*.o
+*.a
+*.so
+
+# Folders
+_obj
+_test
+
+# Architecture specific extensions/prefixes
+*.[568vq]
+[568vq].out
+
+# cgo generated files
+_cgo_*
+_cgo_export.*
+
+# Test cache
+.cache/
+testdata/
+
+# Profiling data
+*.pprof
+cpu.prof
+mem.prof
+block.prof
+mutex.prof
+
+# Delve debugger
+__debug_bin
+
+# GoLand
+.idea/
+*.iml
+
+# Crash log files
+crash.log
+hs_err_pid*

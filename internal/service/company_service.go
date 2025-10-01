@@ -34,3 +34,11 @@ func (s *CompanyService) Update(ctx context.Context, company *models.Company) er
 func (s *CompanyService) List(ctx context.Context, limit, offset int) ([]*models.Company, error) {
 	return s.companyRepo.List(ctx, limit, offset)
 }
+
+func (s *CompanyService) FindAll(ctx context.Context) ([]*models.Company, error) {
+	return s.companyRepo.FindAll(ctx)
+}
+
+func (s *CompanyService) Delete(ctx context.Context, id int) error {
+	return s.companyRepo.Delete(ctx, id)
+}

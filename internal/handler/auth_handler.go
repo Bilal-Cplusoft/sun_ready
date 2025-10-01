@@ -16,23 +16,34 @@ func NewAuthHandler(authService *service.AuthService) *AuthHandler {
 }
 
 type RegisterRequest struct {
-	Email     string `json:"email"`
-	Password  string `json:"password"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	CompanyID int    `json:"company_id"`
+	Email     string `json:"email" example:"user@example.com"`
+	Password  string `json:"password" example:"password123"`
+	FirstName string `json:"first_name" example:"John"`
+	LastName  string `json:"last_name" example:"Doe"`
+	CompanyID int    `json:"company_id" example:"1"`
 }
 
 type LoginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `json:"email" example:"user@example.com"`
+	Password string `json:"password" example:"password123"`
 }
 
 type AuthResponse struct {
-	Token string      `json:"token"`
+	Token string      `json:"token" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
 	User  interface{} `json:"user"`
 }
 
+// Register godoc
+// @Summary Register a new user
+// @Description Register a new user with email and password
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body RegisterRequest true "Registration details"
+// @Success 201 {object} AuthResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /auth/register [post]
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var req RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -55,6 +66,17 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusCreated, AuthResponse{Token: token, User: user})
 }
 
+// Login godoc
+// @Summary Login user
+// @Description Authenticate user and return JWT token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body LoginRequest true "Login credentials"
+// @Success 200 {object} AuthResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} ErrorResponse
+// @Router /auth/login [post]
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var req LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

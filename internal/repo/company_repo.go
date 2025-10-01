@@ -51,3 +51,13 @@ func (r *CompanyRepo) List(ctx context.Context, limit, offset int) ([]*models.Co
 		Find(&companies).Error
 	return companies, err
 }
+
+func (r *CompanyRepo) FindAll(ctx context.Context) ([]*models.Company, error) {
+	var companies []*models.Company
+	err := r.db.WithContext(ctx).Order("created_at DESC").Find(&companies).Error
+	return companies, err
+}
+
+func (r *CompanyRepo) Delete(ctx context.Context, id int) error {
+	return r.db.WithContext(ctx).Delete(&models.Company{}, id).Error
+}

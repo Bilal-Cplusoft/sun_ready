@@ -1,33 +1,41 @@
 # Build stage
-FROM golang:1.20-alpine AS builder
+FROM golang:1.23-alpine AS builder
 
 WORKDIR /app
 
-# Install build dependencies
+
 RUN apk add --no-cache git
 
-# Copy go mod files
+
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Copy source code
+
 COPY . .
 
-# Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o sunready ./cmd/sunready
 
-# Final stage
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags="-w -s" -o sunready ./cmd/sunready
+
+
 FROM alpine:latest
 
-RUN apk --no-cache add ca-certificates
 
-WORKDIR /root/
+RUN apk --no-cache add ca-certificates && \
+    addgroup -g 1000 appuser && \
+    adduser -D -u 1000 -G appuser appuser
 
-# Copy the binary from builder
+WORKDIR /home/appuser/
+
+
 COPY --from=builder /app/sunready .
 
-# Expose port
+
+RUN chown appuser:appuser sunready
+
+
+USER appuser
+
+
 EXPOSE 8080
 
-# Run the application
 CMD ["./sunready"]

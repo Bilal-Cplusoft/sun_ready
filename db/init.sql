@@ -10,7 +10,18 @@ CREATE TABLE IF NOT EXISTS companies (
     slug VARCHAR(255) NOT NULL UNIQUE,
     is_active BOOLEAN NOT NULL DEFAULT true,
     logo_path TEXT,
-    admin_id INTEGER
+    admin_id INTEGER,
+    sales_commission_min DECIMAL(10,4),
+    sales_commission_max DECIMAL(10,4),
+    sales_commission_default DECIMAL(10,4),
+    baseline DECIMAL(10,2),
+    baseline_adder DECIMAL(10,2),
+    baseline_adder_pct_sales_comms INTEGER,
+    contract_tag VARCHAR(100),
+    referred_by_user_id INTEGER,
+    credits INTEGER,
+    custom_commissions BOOLEAN NOT NULL DEFAULT false,
+    pricing_mode INTEGER NOT NULL DEFAULT 0
 );
 
 -- Create users table

@@ -55,3 +55,36 @@ func (r *UserRepo) List(ctx context.Context, companyID int, limit, offset int) (
 		Find(&users).Error
 	return users, err
 }
+
+// FindByIDs finds users by their IDs
+func (r *UserRepo) FindByIDs(ctx context.Context, ids []int) ([]*models.User, error) {
+	var users []*models.User
+	err := r.db.WithContext(ctx).Where("id IN ?", ids).Find(&users).Error
+	return users, err
+}
+
+// GetDescendantIDs gets all descendant user IDs for a given user
+func (r *UserRepo) GetDescendantIDs(ctx context.Context, userID int) ([]int, error) {
+	var descendants []int
+	
+	// Recursive CTE to get all descendants
+	query := `
+		WITH RECURSIVE user_tree AS (
+			SELECT id, creator_id FROM users WHERE creator_id = ?
+			UNION ALL
+			SELECT u.id, u.creator_id FROM users u
+			INNER JOIN user_tree ut ON u.creator_id = ut.id
+		)
+		SELECT id FROM user_tree
+	`
+	
+	err := r.db.WithContext(ctx).Raw(query, userID).Scan(&descendants).Error
+	return descendants, err
+}
+
+// UpdateCompanyID updates the company_id for a user
+func (r *UserRepo) UpdateCompanyID(ctx context.Context, userID, companyID int) error {
+	return r.db.WithContext(ctx).Model(&models.User{}).
+		Where("id = ?", userID).
+		Update("company_id", companyID).Error
+}

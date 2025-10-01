@@ -1,0 +1,1586 @@
+basePath: /api
+definitions:
+  handler.AddCompanyRequest:
+    properties:
+      company_name:
+        example: New Solar Company
+        type: string
+      main_user_id:
+        example: 1
+        type: integer
+    type: object
+  handler.AuthResponse:
+    properties:
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      user: {}
+    type: object
+  handler.CompaniesResponse:
+    properties:
+      companies:
+        items:
+          $ref: '#/definitions/models.Company'
+        type: array
+      total:
+        type: integer
+    type: object
+  handler.CompanyResponse:
+    properties:
+      company:
+        $ref: '#/definitions/models.Company'
+    type: object
+  handler.CreateCompanyRequest:
+    properties:
+      baseline_adder:
+        example: 100
+        type: number
+      code:
+        example: ACME
+        type: string
+      description:
+        example: Leading solar company
+        type: string
+      display_name:
+        example: Acme Corporation
+        type: string
+      logo_path:
+        example: https://example.com/logo.png
+        type: string
+      name:
+        example: Acme Corp
+        type: string
+      sales_commission_default:
+        example: 0.1
+        type: number
+      sales_commission_max:
+        example: 0.15
+        type: number
+      sales_commission_min:
+        example: 0.05
+        type: number
+      slug:
+        example: acme-corp
+        type: string
+    type: object
+  handler.CreateDealRequest:
+    properties:
+      address:
+        example: 123 Solar Street, CA 90210
+        type: string
+      company_id:
+        example: 1
+        type: integer
+      consumption_kwh:
+        example: 12000
+        type: integer
+      document_id:
+        example: 1
+        type: integer
+      financing_option_id:
+        example: 1
+        type: integer
+      financing_provider:
+        example: SunPower Financial
+        type: string
+      hardware_cost:
+        example: 15000
+        type: number
+      homeowner_id:
+        example: 2
+        type: integer
+      installation_cost:
+        example: 8000
+        type: number
+      panel_count:
+        example: 30
+        type: integer
+      production_kwh:
+        example: 13000
+        type: integer
+      profit:
+        example: 5000
+        type: number
+      project_id:
+        example: 1
+        type: integer
+      sales_commission_cost:
+        example: 2000
+        type: number
+      sales_id:
+        example: 1
+        type: integer
+      system_size:
+        example: 10.5
+        type: number
+      target_epc:
+        example: 2.5
+        type: number
+      total_cost:
+        example: 25000
+        type: number
+    type: object
+  handler.CreateLeadRequest:
+    properties:
+      address:
+        example: 123 Solar St, San Francisco, CA 94102
+        type: string
+      company_id:
+        example: 1
+        type: integer
+      creator_id:
+        example: 1
+        type: integer
+      inverter_id:
+        example: 1
+        type: integer
+      is_2d:
+        example: false
+        type: boolean
+      kwh_usage:
+        example: 12000
+        type: number
+      latitude:
+        example: 37.7749
+        type: number
+      longitude:
+        example: -122.4194
+        type: number
+      panel_count:
+        example: 30
+        type: integer
+      panel_id:
+        example: 1
+        type: integer
+      promo_code:
+        example: SOLAR2025
+        type: string
+      roof_material:
+        example: 1
+        type: integer
+      source:
+        example: 0
+        type: integer
+      system_size:
+        example: 10.5
+        type: number
+      utility_id:
+        example: 1
+        type: integer
+    type: object
+  handler.DealResponse:
+    properties:
+      deal:
+        $ref: '#/definitions/models.Deal'
+    type: object
+  handler.DealsResponse:
+    properties:
+      deals:
+        items:
+          $ref: '#/definitions/models.Deal'
+        type: array
+      total:
+        type: integer
+    type: object
+  handler.ErrorResponse:
+    properties:
+      error:
+        example: error message
+        type: string
+    type: object
+  handler.LeadResponse:
+    properties:
+      lead:
+        $ref: '#/definitions/models.Lead'
+    type: object
+  handler.LeadsResponse:
+    properties:
+      leads:
+        items:
+          $ref: '#/definitions/models.Lead'
+        type: array
+      total:
+        type: integer
+    type: object
+  handler.LoginRequest:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      password:
+        example: password123
+        type: string
+    type: object
+  handler.RegisterRequest:
+    properties:
+      company_id:
+        example: 1
+        type: integer
+      email:
+        example: user@example.com
+        type: string
+      first_name:
+        example: John
+        type: string
+      last_name:
+        example: Doe
+        type: string
+      password:
+        example: password123
+        type: string
+    type: object
+  handler.UpdateCompanyRequest:
+    properties:
+      baseline:
+        example: 1000
+        type: number
+      baseline_adder:
+        example: 100
+        type: number
+      baseline_adder_pct_sales_comms:
+        example: 10
+        type: integer
+      code:
+        example: ACME
+        type: string
+      contract_tag:
+        example: STANDARD
+        type: string
+      description:
+        example: Leading solar company
+        type: string
+      display_name:
+        example: Acme Corporation
+        type: string
+      is_active:
+        example: true
+        type: boolean
+      logo_path:
+        example: https://example.com/logo.png
+        type: string
+      name:
+        example: Acme Corp
+        type: string
+      sales_commission_default:
+        example: 0.1
+        type: number
+      sales_commission_max:
+        example: 0.15
+        type: number
+      sales_commission_min:
+        example: 0.05
+        type: number
+      slug:
+        example: acme-corp
+        type: string
+    type: object
+  handler.UpdateDealRequest:
+    properties:
+      address:
+        example: 123 Solar Street, CA 90210
+        type: string
+      approved_at:
+        example: "2025-10-02T10:00:00Z"
+        type: string
+      consumption_kwh:
+        example: 12000
+        type: integer
+      document_id:
+        example: 1
+        type: integer
+      financing_option_id:
+        example: 1
+        type: integer
+      financing_provider:
+        example: SunPower Financial
+        type: string
+      hardware_cost:
+        example: 15000
+        type: number
+      installation_cost:
+        example: 8000
+        type: number
+      installed_at:
+        example: "2025-10-15T10:00:00Z"
+        type: string
+      panel_count:
+        example: 30
+        type: integer
+      production_kwh:
+        example: 13000
+        type: integer
+      profit:
+        example: 5000
+        type: number
+      sales_commission_cost:
+        example: 2000
+        type: number
+      signed_at:
+        example: "2025-10-01T10:00:00Z"
+        type: string
+      status:
+        example: approved
+        type: string
+      system_size:
+        example: 10.5
+        type: number
+      target_epc:
+        example: 2.5
+        type: number
+      total_cost:
+        example: 25000
+        type: number
+    type: object
+  handler.UpdateLeadRequest:
+    properties:
+      address:
+        example: 123 Solar St, San Francisco, CA 94102
+        type: string
+      annual_production:
+        example: 13000
+        type: number
+      installation_date:
+        example: "2025-10-15"
+        type: string
+      inverter_id:
+        example: 1
+        type: integer
+      kwh_usage:
+        example: 12000
+        type: number
+      latitude:
+        example: 37.7749
+        type: number
+      longitude:
+        example: -122.4194
+        type: number
+      panel_count:
+        example: 30
+        type: integer
+      panel_id:
+        example: 1
+        type: integer
+      promo_code:
+        example: SOLAR2025
+        type: string
+      roof_material:
+        example: 1
+        type: integer
+      state:
+        example: 1
+        type: integer
+      system_size:
+        example: 10.5
+        type: number
+      utility_id:
+        example: 1
+        type: integer
+    type: object
+  models.Company:
+    properties:
+      admin_id:
+        example: 1
+        type: integer
+      baseline:
+        example: 1000
+        type: number
+      baseline_adder:
+        example: 100
+        type: number
+      baseline_adder_pct_sales_comms:
+        example: 10
+        type: integer
+      code:
+        example: ACME
+        type: string
+      contract_tag:
+        example: STANDARD
+        type: string
+      created_at:
+        type: string
+      credits:
+        example: 1000
+        type: integer
+      custom_commissions:
+        example: false
+        type: boolean
+      description:
+        example: Leading solar company
+        type: string
+      display_name:
+        example: Acme Corporation
+        type: string
+      id:
+        type: integer
+      is_active:
+        example: true
+        type: boolean
+      logo_path:
+        example: https://example.com/logo.png
+        type: string
+      name:
+        example: Acme Corp
+        type: string
+      pricing_mode:
+        example: 0
+        type: integer
+      referred_by_user_id:
+        example: 1
+        type: integer
+      sales_commission_default:
+        example: 0.1
+        type: number
+      sales_commission_max:
+        example: 0.15
+        type: number
+      sales_commission_min:
+        example: 0.05
+        type: number
+      slug:
+        example: acme-corp
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.Deal:
+    properties:
+      address:
+        description: Additional Info
+        example: 123 Solar Street, CA 90210
+        type: string
+      approved_at:
+        example: "2025-10-02T10:00:00Z"
+        type: string
+      archive:
+        description: Status and Metadata
+        example: false
+        type: boolean
+      company_id:
+        example: 1
+        type: integer
+      consumption_kwh:
+        example: 12000
+        type: integer
+      created_at:
+        type: string
+      document_id:
+        example: 1
+        type: integer
+      financing_option_id:
+        example: 1
+        type: integer
+      financing_provider:
+        description: Financial Details
+        example: SunPower Financial
+        type: string
+      hardware_cost:
+        example: 15000
+        type: number
+      hardware_id:
+        example: 1
+        type: integer
+      homeowner_id:
+        example: 2
+        type: integer
+      id:
+        type: integer
+      installation_cost:
+        example: 8000
+        type: number
+      installed_at:
+        example: "2025-10-15T10:00:00Z"
+        type: string
+      inverter_id:
+        example: 1
+        type: integer
+      lead_id:
+        description: Foreign Keys
+        example: 1
+        type: integer
+      panel_count:
+        example: 30
+        type: integer
+      panel_id:
+        example: 1
+        type: integer
+      production_kwh:
+        example: 13000
+        type: integer
+      profit:
+        example: 5000
+        type: number
+      project_id:
+        example: 1
+        type: integer
+      sales_commission_cost:
+        example: 2000
+        type: number
+      sales_id:
+        example: 1
+        type: integer
+      signed_at:
+        example: "2025-10-01T10:00:00Z"
+        type: string
+      status:
+        example: pending
+        type: string
+      system_id:
+        example: 1
+        type: integer
+      system_size:
+        description: System Details
+        example: 10.5
+        type: number
+      target_epc:
+        example: 2.5
+        type: number
+      total_cost:
+        example: 25000
+        type: number
+      updated_at:
+        type: string
+      utility_id:
+        example: 1
+        type: integer
+      uuid:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+    type: object
+  models.Lead:
+    properties:
+      additional_incentive:
+        example: 1000
+        type: integer
+      address:
+        example: 123 Solar St, San Francisco, CA 94102
+        type: string
+      annual_production:
+        description: Production
+        example: 13000
+        type: number
+      battery_count:
+        example: 0
+        type: integer
+      company_id:
+        example: 1
+        type: integer
+      created_at:
+        type: string
+      creator_id:
+        example: 1
+        type: integer
+      date_installed:
+        example: "2025-10-15"
+        type: string
+      date_ntp:
+        example: "2025-10-10"
+        type: string
+      design_approved_state:
+        example: 0
+        type: integer
+      electricity_cost_post:
+        example: 50
+        type: integer
+      electricity_cost_pre:
+        description: Financial
+        example: 150
+        type: integer
+      external_lead_id:
+        description: External reference
+        example: 12345
+        type: integer
+      final_inspection_state:
+        example: 0
+        type: integer
+      financing_state:
+        example: 0
+        type: integer
+      id:
+        type: integer
+      install_crew_state:
+        example: 0
+        type: integer
+      installation_date:
+        description: Dates
+        example: "2025-10-15"
+        type: string
+      installation_state:
+        example: 0
+        type: integer
+      inverter_count:
+        example: 1
+        type: integer
+      inverter_id:
+        example: 1
+        type: integer
+      is_2d:
+        example: false
+        type: boolean
+      kwh_per_kw_manual:
+        example: 1200
+        type: integer
+      kwh_usage:
+        description: Energy details
+        example: 12000
+        type: number
+      last_synced_at:
+        type: string
+      latitude:
+        description: Location
+        example: 37.7749
+        type: number
+      longitude:
+        example: -122.4194
+        type: number
+      panel_count:
+        example: 30
+        type: integer
+      panel_id:
+        example: 1
+        type: integer
+      permitting_approved_state:
+        example: 0
+        type: integer
+      promo_code:
+        example: SOLAR2025
+        type: string
+      pto_state:
+        example: 0
+        type: integer
+      roof_material:
+        description: Roof details
+        example: 1
+        type: integer
+      site_photos_state:
+        example: 0
+        type: integer
+      source:
+        description: Source and metadata
+        example: 0
+        type: integer
+      state:
+        description: Core fields (synced with external API)
+        example: 0
+        type: integer
+      surface_id:
+        example: 1
+        type: integer
+      sync_status:
+        example: synced
+        type: string
+      system_size:
+        description: System details
+        example: 10.5
+        type: number
+      tariff_id:
+        example: 1
+        type: integer
+      updated_at:
+        type: string
+      utility_bill_state:
+        example: 0
+        type: integer
+      utility_id:
+        description: Utility
+        example: 1
+        type: integer
+      welcome_call_state:
+        description: Workflow states
+        example: 0
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@sunready.com
+    name: API Support
+  description: API for Sun Ready project management system
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Sun Ready API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Login user
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with email and password
+      parameters:
+      - description: Registration details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - auth
+  /companies:
+    get:
+      description: Get a list of all companies with optional filtering
+      parameters:
+      - default: 10
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      - description: Filter by referred by user ID
+        in: query
+        name: referred_by_user_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.CompaniesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List all companies
+      tags:
+      - companies
+    post:
+      consumes:
+      - application/json
+      description: Create a new company with the provided details
+      parameters:
+      - description: Company details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateCompanyRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.CompanyResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new company
+      tags:
+      - companies
+  /companies/{id}:
+    delete:
+      description: Delete a company by ID
+      parameters:
+      - description: Company ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete company
+      tags:
+      - companies
+    get:
+      description: Get a company by its ID
+      parameters:
+      - description: Company ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.CompanyResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get company by ID
+      tags:
+      - companies
+    put:
+      consumes:
+      - application/json
+      description: Update a company's details
+      parameters:
+      - description: Company ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Company update details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateCompanyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.CompanyResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update company
+      tags:
+      - companies
+  /companies/add:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new company and migrates the main user and their descendants
+        to it
+      parameters:
+      - description: Company and user details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.AddCompanyRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.CompanyResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Add company with user migration
+      tags:
+      - companies
+  /companies/all:
+    get:
+      description: Get all companies without pagination with optional filtering
+      parameters:
+      - description: Filter by referred by user ID
+        in: query
+        name: referred_by_user_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.CompaniesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all companies
+      tags:
+      - companies
+  /companies/slug/{slug}:
+    get:
+      description: Get a company by its slug
+      parameters:
+      - description: Company Slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.CompanyResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get company by slug
+      tags:
+      - companies
+  /deals:
+    get:
+      description: Get a list of all deals with pagination
+      parameters:
+      - default: 10
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.DealsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List all deals
+      tags:
+      - deals
+    post:
+      consumes:
+      - application/json
+      description: Create a new deal with the provided details
+      parameters:
+      - description: Deal details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateDealRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.DealResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new deal
+      tags:
+      - deals
+  /deals/{id}:
+    delete:
+      description: Delete a deal by ID
+      parameters:
+      - description: Deal ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete deal
+      tags:
+      - deals
+    get:
+      description: Get a deal by its ID
+      parameters:
+      - description: Deal ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.DealResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get deal by ID
+      tags:
+      - deals
+    put:
+      consumes:
+      - application/json
+      description: Update a deal's details
+      parameters:
+      - description: Deal ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Deal update details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateDealRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.DealResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update deal
+      tags:
+      - deals
+  /deals/{id}/archive:
+    post:
+      description: Archive a deal by ID
+      parameters:
+      - description: Deal ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Archive a deal
+      tags:
+      - deals
+  /deals/{id}/unarchive:
+    post:
+      description: Unarchive a deal by ID
+      parameters:
+      - description: Deal ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Unarchive a deal
+      tags:
+      - deals
+  /deals/company/{company_id}:
+    get:
+      description: Get a list of deals for a specific company
+      parameters:
+      - description: Company ID
+        in: path
+        name: company_id
+        required: true
+        type: integer
+      - default: 10
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.DealsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List deals by company
+      tags:
+      - deals
+  /deals/company/{company_id}/signed:
+    get:
+      description: Get a list of signed deals for a company
+      parameters:
+      - description: Company ID
+        in: path
+        name: company_id
+        required: true
+        type: integer
+      - default: 10
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.DealsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List signed deals
+      tags:
+      - deals
+  /deals/uuid/{uuid}:
+    get:
+      description: Get a deal by its UUID
+      parameters:
+      - description: Deal UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.DealResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get deal by UUID
+      tags:
+      - deals
+  /leads:
+    get:
+      description: Get a list of all leads with pagination
+      parameters:
+      - default: 10
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.LeadsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List all leads
+      tags:
+      - leads
+    post:
+      consumes:
+      - application/json
+      description: Create a new lead with the provided details
+      parameters:
+      - description: Lead details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateLeadRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.LeadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new lead
+      tags:
+      - leads
+  /leads/{id}:
+    delete:
+      description: Delete a lead by ID
+      parameters:
+      - description: Lead ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete lead
+      tags:
+      - leads
+    get:
+      description: Get a lead by its ID
+      parameters:
+      - description: Lead ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.LeadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get lead by ID
+      tags:
+      - leads
+    put:
+      consumes:
+      - application/json
+      description: Update a lead's details
+      parameters:
+      - description: Lead ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Lead update details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateLeadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.LeadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update lead
+      tags:
+      - leads
+  /leads/{id}/state:
+    put:
+      consumes:
+      - application/json
+      description: Update the state of a lead
+      parameters:
+      - description: Lead ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: State
+        in: body
+        name: state
+        required: true
+        schema:
+          additionalProperties:
+            type: integer
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update lead state
+      tags:
+      - leads
+  /leads/company/{company_id}:
+    get:
+      description: Get a list of leads for a specific company
+      parameters:
+      - description: Company ID
+        in: path
+        name: company_id
+        required: true
+        type: integer
+      - default: 10
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.LeadsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List leads by company
+      tags:
+      - leads
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

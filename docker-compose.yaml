@@ -1,5 +1,5 @@
 services:
-  postgres:
+  postgres-sunready:
     image: postgres:15-alpine
     container_name: sunready-postgres
     environment:
@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: sunready
       POSTGRES_DB: sunready
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -23,14 +23,18 @@ services:
       dockerfile: Dockerfile
     container_name: sunready-api
     environment:
-      DATABASE_URL: postgres://sunready:sunready@postgres:5432/sunready?sslmode=disable
-      JWT_SECRET: your-secret-key-change-in-production
+      DATABASE_URL: postgres://sunready:sunready@postgres-sunready:5432/sunready?sslmode=disable
+      JWT_SECRET: sunready
       PORT: 8080
       ENV: development
+      LIGHTFUSION_API: https://api.lightfusion.com
+      LIGHTFUSION_API_KEY: your-api-key-here
     ports:
       - "8080:8080"
+    volumes:
+      - .:/app
     depends_on:
-      postgres:
+      postgres-sunready:
         condition: service_healthy
     restart: unless-stopped
 

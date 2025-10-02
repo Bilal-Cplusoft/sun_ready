@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/Bilal-Cplusoft/sun_ready/internal/client"
@@ -80,7 +81,7 @@ type Create3DProjectResponse struct {
 // @Success 201 {object} Create3DProjectResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /projects/3d [post]
+// @Router /api/projects/3d [post]
 func (h *Project3DHandler) Create3DProject(w http.ResponseWriter, r *http.Request) {
 	var req Create3DProjectRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -157,17 +158,16 @@ func (h *Project3DHandler) Create3DProject(w http.ResponseWriter, r *http.Reques
 // @Tags projects
 // @Produce json
 // @Param id path int true "Project ID"
-// @Success 200 {object} Create3DProjectResponse
+// @Param house_id query int true "House ID"
+// @Success 200 {object} client.Status3DProjectResponse "Response structure from LightFusion API"
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
 // @Router /api/projects/3d/{id} [get]
 func (h *Project3DHandler) GetProjectStatus(w http.ResponseWriter, r *http.Request) {
-	// Extract project ID from URL path
 	var projectID int
 	_, err := fmt.Sscanf(r.URL.Path, "/api/projects/3d/%d", &projectID)
 	if err != nil {
-		// Try alternative path format
 		_, err = fmt.Sscanf(r.URL.Path, "/projects/3d/%d", &projectID)
 		if err != nil {
 			errMsg := fmt.Sprintf("Invalid project ID in path '%s': %v", r.URL.Path, err)
@@ -183,21 +183,32 @@ func (h *Project3DHandler) GetProjectStatus(w http.ResponseWriter, r *http.Reque
 		respondWithError(w, http.StatusBadRequest, errMsg)
 		return
 	}
+	houseIDStr := r.URL.Query().Get("house_id")
+	houseID, err := strconv.Atoi(houseIDStr)
+	if err != nil || houseID == 0 {
+		errMsg := fmt.Sprintf("Invalid or missing house_id query param: '%s'", houseIDStr)
+		log.Printf("Error: %s", errMsg)
+		respondWithError(w, http.StatusBadRequest, errMsg)
+		return
+	}
+	if houseID == 0 {
+		errMsg := "House ID cannot be 0"
+		log.Printf("Error: %s", errMsg)
+		respondWithError(w, http.StatusBadRequest, errMsg)
+		return
+	}
 
-	log.Printf("Fetching status for project ID: %d", projectID)
-
-	// Call LightFusion API - no need for auth header as client is already authenticated
-	resp, err := h.lightFusionClient.GetProjectStatus(r.Context(), projectID)
+	resp, err := h.lightFusionClient.GetProjectStatus(r.Context(), projectID, houseID)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to get project status for ID %d: %v", projectID, err)
 		log.Printf("Error: %s", errMsg)
 
-		// Return appropriate status code based on error type
 		statusCode := http.StatusInternalServerError
-		if err.Error() == "not authenticated with LightFusion API" {
-			statusCode = http.StatusInternalServerError // This should not happen as we're already authenticated
-		} else if strings.Contains(err.Error(), "not found") {
+		if strings.Contains(strings.ToLower(err.Error()), "not found") {
 			statusCode = http.StatusNotFound
+		} else if strings.Contains(strings.ToLower(err.Error()), "unauthorized") ||
+			strings.Contains(strings.ToLower(err.Error()), "not authenticated") {
+			statusCode = http.StatusUnauthorized
 		}
 
 		respondWithError(w, statusCode, errMsg)
@@ -206,29 +217,7 @@ func (h *Project3DHandler) GetProjectStatus(w http.ResponseWriter, r *http.Reque
 
 	log.Printf("Successfully retrieved project status for ID %d", projectID)
 
-	// Map the response to our API response format
-	response := Create3DProjectResponse{
-		ID:               resp.ID,
-		LeadID:           resp.LeadID,
-		Status:           resp.Status,
-		AnnualProduction: resp.AnnualProduction,
-		SystemSize:       resp.SystemSize,
-		EstimatedCost:    resp.EstimatedCost,
-		AnnualSavings:    resp.AnnualSavings,
-		Message:          "", // Will be set based on status if needed
-	}
-
-	// Add a friendly message based on status
-	switch resp.Status {
-	case "processing":
-		response.Message = "3D project is being processed. Please check back later."
-	case "completed":
-		response.Message = "3D project processing is complete."
-	case "failed":
-		response.Message = "3D project processing failed. Please try again or contact support."
-	}
-
-	respondWithJSON(w, http.StatusOK, response)
+	respondWithJSON(w, http.StatusOK, resp)
 }
 
 func respondWithError(w http.ResponseWriter, code int, message string) {

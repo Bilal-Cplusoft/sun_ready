@@ -63,7 +63,6 @@ func main() {
 		port = "8080"
 	}
 
-	// LightFUSION API configuration
 	lightFusionURL := os.Getenv("LIGHTFUSION_API")
 	if lightFusionURL == "" {
 		lightFusionURL = "http://localhost:8085"
@@ -71,7 +70,6 @@ func main() {
 	lightFusionAPIKey := os.Getenv("LIGHTFUSION_API_KEY")
 	lightFusionEmail := os.Getenv("LIGHTFUSION_EMAIL")
 	lightFusionPassword := os.Getenv("LIGHTFUSION_PASSWORD")
-	useExternalAPI := true
 
 	db, err := database.New(databaseURL)
 	if err != nil {
@@ -82,13 +80,10 @@ func main() {
 	companyRepo := repo.NewCompanyRepo(db)
 	projectRepo := repo.NewProjectRepo(db)
 	dealRepo := repo.NewDealRepo(db)
-	leadRepo := repo.NewLeadRepo(db)
 
-	// Initialize LightFUSION client
 	lightFusionClient := client.NewLightFusionClient(lightFusionURL, lightFusionAPIKey)
 	log.Printf("LightFUSION API integration enabled: %s", lightFusionURL)
 
-	// Authenticate with LightFusion API if credentials are provided
 	if lightFusionEmail != "" && lightFusionPassword != "" {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
@@ -98,7 +93,7 @@ func main() {
 			log.Println("3D project creation will require manual authentication")
 		} else {
 			log.Printf("Successfully authenticated with LightFusion API")
-			log.Printf("Session token obtained: %s...", token[:20])
+			log.Printf("\n Session token obtained: %s \n", token)
 		}
 	} else {
 		log.Println("LightFusion credentials not provided. Set LIGHTFUSION_EMAIL and LIGHTFUSION_PASSWORD in .env")
@@ -109,7 +104,6 @@ func main() {
 	companyService := service.NewCompanyService(companyRepo)
 	projectService := service.NewProjectService(projectRepo)
 	dealService := service.NewDealService(dealRepo)
-	leadService := service.NewLeadService(leadRepo, lightFusionClient, useExternalAPI)
 
 	authHandler := handler.NewAuthHandler(authService)
 	userHandler := handler.NewUserHandler(userService)
@@ -117,7 +111,6 @@ func main() {
 	projectHandler := handler.NewProjectHandler(projectService)
 	project3DHandler := handler.NewProject3DHandler(lightFusionClient)
 	dealHandler := handler.NewDealHandler(dealService)
-	leadHandler := handler.NewLeadHandler(leadService)
 
 	r := chi.NewRouter()
 
@@ -132,17 +125,14 @@ func main() {
 		MaxAge:           300,
 	}))
 
-	// Auth routes (no middleware)
 	r.Post("/api/auth/register", authHandler.Register)
 	r.Post("/api/auth/login", authHandler.Login)
 
-	// User routes (no middleware)
 	r.Get("/api/users/{id}", userHandler.GetByID)
 	r.Put("/api/users/{id}", userHandler.Update)
 	r.Delete("/api/users/{id}", userHandler.Delete)
 	r.Get("/api/users", userHandler.List)
 
-	// Company routes (no middleware)
 	r.Post("/api/companies", companyHandler.Create)
 	r.Post("/api/companies/add", companyHandler.AddCompany)
 	r.Get("/api/companies/all", companyHandler.FindAll)
@@ -152,7 +142,6 @@ func main() {
 	r.Delete("/api/companies/{id}", companyHandler.Delete)
 	r.Get("/api/companies", companyHandler.List)
 
-	// Project routes (no middleware)
 	r.Post("/api/projects", projectHandler.Create)
 	r.Get("/api/projects/{id}", projectHandler.GetByID)
 	r.Put("/api/projects/{id}", projectHandler.Update)
@@ -160,7 +149,6 @@ func main() {
 	r.Get("/api/projects", projectHandler.ListByCompany)
 	r.Get("/api/projects/user", projectHandler.ListByUser)
 
-	// Deal routes (no middleware)
 	r.Post("/api/deals", dealHandler.Create)
 	r.Get("/api/deals/uuid/{uuid}", dealHandler.GetByUUID)
 	r.Get("/api/deals/company/{company_id}", dealHandler.ListByCompany)
@@ -172,20 +160,9 @@ func main() {
 	r.Post("/api/deals/{id}/unarchive", dealHandler.Unarchive)
 	r.Get("/api/deals", dealHandler.List)
 
-	// Lead routes (no middleware)
-	r.Post("/api/leads", leadHandler.Create)
-	r.Get("/api/leads/company/{company_id}", leadHandler.ListByCompany)
-	r.Get("/api/leads/{id}", leadHandler.GetByID)
-	r.Put("/api/leads/{id}", leadHandler.Update)
-	r.Put("/api/leads/{id}/state", leadHandler.UpdateState)
-	r.Delete("/api/leads/{id}", leadHandler.Delete)
-	r.Get("/api/leads", leadHandler.List)
-
-	// 3D Project routes (no middleware) - Integration with LightFusion API
 	r.Post("/api/projects/3d", project3DHandler.Create3DProject)
 	r.Get("/api/projects/3d/{id}", project3DHandler.GetProjectStatus)
 
-	// Swagger documentation
 	r.Get("/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8080/swagger/doc.json"),
 	))

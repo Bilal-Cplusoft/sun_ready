@@ -10,17 +10,14 @@ import (
 	"log"
 	"net/http"
 	"net/http/httputil"
-	"time"
 )
 
-// LightFusionClient handles communication with the LightFUSION API
 type LightFusionClient struct {
 	baseURL    string
 	httpClient *http.Client
 	apiKey     string
 }
 
-// NewLightFusionClient creates a new LightFUSION API client
 func NewLightFusionClient(baseURL, apiKey string) *LightFusionClient {
 	return &LightFusionClient{
 		baseURL:    baseURL,
@@ -29,14 +26,12 @@ func NewLightFusionClient(baseURL, apiKey string) *LightFusionClient {
 	}
 }
 
-// LoginRequest represents the login request for LightFusion API
 type LoginRequest struct {
 	Contact  string `json:"contact"`
 	Password string `json:"password"`
 	Expires  bool   `json:"expires"`
 }
 
-// LoginResponse represents the login response from LightFusion API
 type LoginResponse struct {
 	Token   string      `json:"token"`
 	User    interface{} `json:"user"`
@@ -44,70 +39,6 @@ type LoginResponse struct {
 	Company interface{} `json:"company"`
 }
 
-// Login authenticates with the LightFusion API and returns a session token
-func (c *LightFusionClient) Login(ctx context.Context, email, password string) (string, error) {
-	// Create a simple form data request
-	formData := fmt.Sprintf(`{"contact":"%s","password":"%s"}`, email, password)
-	body := bytes.NewBufferString(formData)
-
-	// Log the request
-	endpoint := c.baseURL + "/v1/users/sessions"
-	log.Printf("Sending login request to %s with body: %s", endpoint, formData)
-
-	req, err := http.NewRequest("POST", endpoint, body)
-	if err != nil {
-		return "", fmt.Errorf("failed to create request: %w", err)
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-
-	// Log the full request
-	dump, _ := httputil.DumpRequestOut(req, true)
-	log.Printf("Request details:\n%s", string(dump))
-
-	// Create a new HTTP client with disabled SSL verification (for testing only)
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	client := &http.Client{Transport: tr}
-
-	// Send the request
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("request failed: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Read the response
-	respBody, _ := io.ReadAll(resp.Body)
-	log.Printf("Response status: %d, body: %s", resp.StatusCode, string(respBody))
-
-	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
-		return "", fmt.Errorf("login failed with status %d: %s", resp.StatusCode, string(respBody))
-	}
-
-	// Parse the response
-	var result struct {
-		Token   string      `json:"token"`
-		User    interface{} `json:"user"`
-		Contact interface{} `json:"contact"`
-	}
-
-	if err := json.Unmarshal(respBody, &result); err != nil {
-		return "", fmt.Errorf("failed to parse response: %w", err)
-	}
-
-	if result.Token == "" {
-		return "", fmt.Errorf("no token in response: %s", string(respBody))
-	}
-
-	// Store the token for future requests
-	c.apiKey = result.Token
-
-	return result.Token, nil
-}
-
-// Create3DProjectRequest represents the request to create a 3D project with energy calculations
 type Create3DProjectRequest struct {
 	Latitude          float64          `json:"latitude"`
 	Longitude         float64          `json:"longitude"`
@@ -122,7 +53,6 @@ type Create3DProjectRequest struct {
 	Unit              string           `json:"unit"`
 }
 
-// AddressDetails represents address information
 type AddressDetails struct {
 	Street     string `json:"street"`
 	City       string `json:"city"`
@@ -131,7 +61,6 @@ type AddressDetails struct {
 	Country    string `json:"country"`
 }
 
-// HomeownerDetails represents homeowner information
 type HomeownerDetails struct {
 	Email     string `json:"email"`
 	FirstName string `json:"firstname"`
@@ -139,7 +68,6 @@ type HomeownerDetails struct {
 	Phone     string `json:"phone"`
 }
 
-// HardwareDetails represents solar hardware configuration
 type HardwareDetails struct {
 	PanelID         int  `json:"panel_id"`
 	InverterID      int  `json:"inverter_id"`
@@ -147,18 +75,119 @@ type HardwareDetails struct {
 	StorageQuantity *int `json:"storage_quantity,omitempty"`
 }
 
-// Create3DProjectResponse represents the response from 3D project creation
 type Create3DProjectResponse struct {
-	ID               int     `json:"id"`
-	LeadID           int     `json:"lead_id"`
-	Status           string  `json:"status"`
-	AnnualProduction float64 `json:"annual_production,omitempty"`
-	SystemSize       float64 `json:"system_size,omitempty"`
-	EstimatedCost    float64 `json:"estimated_cost,omitempty"`
-	AnnualSavings    float64 `json:"annual_savings,omitempty"`
+	ID               int                    `json:"id"`
+	LeadID           int                    `json:"lead_id"`
+	Status           string                 `json:"status"`
+	AnnualProduction float64                `json:"annual_production,omitempty"`
+	SystemSize       float64                `json:"system_size,omitempty"`
+	EstimatedCost    float64                `json:"estimated_cost,omitempty"`
+	AnnualSavings    float64                `json:"annual_savings,omitempty"`
+	Adders           map[string]interface{} `json:"adders,omitempty"`
 }
 
-// Create3DProject creates a 3D project with energy calculations using the LightFusion API
+type Adder struct {
+	ID             int         `json:"ID"`
+	CompanyID      int         `json:"CompanyID"`
+	Name           string      `json:"Name"`
+	Category       string      `json:"Category"`
+	Cost           float64     `json:"Cost"`
+	CostType       string      `json:"CostType"`
+	States         []string    `json:"States"`
+	Active         bool        `json:"Active"`
+	CreatedAt      string      `json:"CreatedAt"`
+	UpdatedAt      string      `json:"UpdatedAt"`
+	ExpiredAt      interface{} `json:"ExpiredAt"`
+	CategoryID     int         `json:"CategoryID"`
+	IsAutomatic    bool        `json:"IsAutomatic"`
+	AllSystemSizes bool        `json:"AllSystemSizes"`
+	MinSystemSize  int         `json:"MinSystemSize"`
+	MaxSystemSize  int         `json:"MaxSystemSize"`
+	LenderMapping  string      `json:"LenderMapping"`
+	CategoryName   string      `json:"CategoryName"`
+	Quantity       int         `json:"Quantity"`
+	CustomPrice    float64     `json:"CustomPrice"`
+}
+
+type Status3DProjectResponse struct {
+	Panel          interface{}     `json:"panel"`
+	Inverter       interface{}     `json:"inverter"`
+	Storage        interface{}     `json:"storage"`
+	Adders         []Adder         `json:"adders"`
+	PriceBreakdown *PriceBreakdown `json:"price_breakdown,omitempty"`
+}
+
+type PriceBreakdown struct {
+	Items                       []PriceItem `json:"items"`
+	BasePricePerWatt            float64     `json:"base_price_per_watt"`
+	TotalPricePerWatt           float64     `json:"total_price_per_watt"`
+	TotalPricePerWattFinanced   float64     `json:"total_price_per_watt_financed"`
+	DefaultBasePrice            float64     `json:"default_base_price"`
+	MinimumBasePrice            float64     `json:"minimum_base_price"`
+	TotalAmount                 float64     `json:"total_amount"`
+	TotalAmountWithoutDealerFee float64     `json:"total_amount_without_dealer_fee"`
+	TotalFee                    float64     `json:"total_fee"`
+}
+
+type PriceItem struct {
+	Name  string  `json:"name"`
+	Price float64 `json:"price"`
+}
+
+func (c *LightFusionClient) Login(ctx context.Context, email, password string) (string, error) {
+	formData := fmt.Sprintf(`{"contact":"%s","password":"%s"}`, email, password)
+	body := bytes.NewBufferString(formData)
+
+	endpoint := c.baseURL + "/v1/users/sessions"
+	log.Printf("Sending login request to %s with body: %s", endpoint, formData)
+
+	req, err := http.NewRequest("POST", endpoint, body)
+	if err != nil {
+		return "", fmt.Errorf("failed to create request: %w", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	dump, _ := httputil.DumpRequestOut(req, true)
+	log.Printf("Request details:\n%s", string(dump))
+
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	respBody, _ := io.ReadAll(resp.Body)
+	log.Printf("Response status: %d, body: %s", resp.StatusCode, string(respBody))
+
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
+		return "", fmt.Errorf("login failed with status %d: %s", resp.StatusCode, string(respBody))
+	}
+
+	var result struct {
+		Token   string      `json:"token"`
+		User    interface{} `json:"user"`
+		Contact interface{} `json:"contact"`
+	}
+
+	if err := json.Unmarshal(respBody, &result); err != nil {
+		return "", fmt.Errorf("failed to parse response: %w", err)
+	}
+
+	if result.Token == "" {
+		return "", fmt.Errorf("no token in response: %s", string(respBody))
+	}
+
+	c.apiKey = result.Token
+
+	return result.Token, nil
+}
+
 func (c *LightFusionClient) Create3DProject(ctx context.Context, req Create3DProjectRequest) (*Create3DProjectResponse, error) {
 
 	if c.apiKey == "" {
@@ -200,23 +229,33 @@ func (c *LightFusionClient) Create3DProject(ctx context.Context, req Create3DPro
 	return &projectResp, nil
 }
 
-// GetProjectStatus retrieves the status of a 3D project
-func (c *LightFusionClient) GetProjectStatus(ctx context.Context, projectID int) (*Create3DProjectResponse, error) {
-
+func (c *LightFusionClient) GetProjectStatus(ctx context.Context, projectID int, houseID int) (*Status3DProjectResponse, error) {
 	if c.apiKey == "" {
 		return nil, fmt.Errorf("not authenticated with LightFusion API")
 	}
 
-	endpoint := fmt.Sprintf("%s/v1/projects/3d/%d", c.baseURL, projectID)
-	httpReq, err := http.NewRequestWithContext(ctx, "GET", endpoint, nil)
+	requestBody := struct {
+		ProjectID int `json:"project_id"`
+	}{
+		ProjectID: projectID,
+	}
+
+	jsonBody, err := json.Marshal(requestBody)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request body: %w", err)
+	}
+
+	endpoint := fmt.Sprintf("%s/v3/adders.ListProjectAdders", c.baseURL)
+	httpReq, err := http.NewRequestWithContext(ctx, "POST", endpoint, bytes.NewBuffer(jsonBody))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
 	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("Accept", "application/json")
 	httpReq.Header.Set("Authorization", "Bearer "+c.apiKey)
 
-	log.Printf("Fetching project status from %s", endpoint)
+	log.Printf("Fetching project adders from %s for project ID: %d", endpoint, projectID)
 
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -230,196 +269,60 @@ func (c *LightFusionClient) GetProjectStatus(ctx context.Context, projectID int)
 	defer resp.Body.Close()
 
 	bodyBytes, _ := io.ReadAll(resp.Body)
-	log.Printf("Project status response status: %d, body: %s", resp.StatusCode, string(bodyBytes))
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("API returned status %d: %s", resp.StatusCode, string(bodyBytes))
 	}
 
-	var projectResp Create3DProjectResponse
+	var projectResp Status3DProjectResponse
 	if err := json.Unmarshal(bodyBytes, &projectResp); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %w, body: %s", err, string(bodyBytes))
 	}
 
+	// Fetch price breakdown
+	priceRequestBody := struct {
+		ProjectID int `json:"project_id"`
+		HouseID   int `json:"house_id"`
+	}{
+		ProjectID: projectID,
+		HouseID:   houseID,
+	}
+
+	priceJsonBody, err := json.Marshal(priceRequestBody)
+	if err != nil {
+		log.Printf("Warning: failed to marshal price breakdown request: %v", err)
+	} else {
+		priceEndpoint := fmt.Sprintf("%s/v3/adders.GetPriceBreakdown", c.baseURL)
+		priceReq, err := http.NewRequestWithContext(ctx, "POST", priceEndpoint, bytes.NewBuffer(priceJsonBody))
+		if err != nil {
+			log.Printf("Warning: failed to create price breakdown request: %v", err)
+		} else {
+			priceReq.Header.Set("Content-Type", "application/json")
+			priceReq.Header.Set("Accept", "application/json")
+			priceReq.Header.Set("Authorization", "Bearer "+c.apiKey)
+
+			log.Printf("Fetching price breakdown from %s for project ID: %d, house ID: %d", priceEndpoint, projectID, houseID)
+
+			priceResp, err := client.Do(priceReq)
+			if err != nil {
+				log.Printf("Warning: failed to fetch price breakdown: %v", err)
+			} else {
+				defer priceResp.Body.Close()
+				priceBodyBytes, _ := io.ReadAll(priceResp.Body)
+
+				if priceResp.StatusCode == http.StatusOK {
+					var priceBreakdown PriceBreakdown
+					if err := json.Unmarshal(priceBodyBytes, &priceBreakdown); err != nil {
+						log.Printf("Warning: failed to decode price breakdown: %v", err)
+					} else {
+						projectResp.PriceBreakdown = &priceBreakdown
+					}
+				} else {
+					log.Printf("Warning: price breakdown API returned status %d: %s", priceResp.StatusCode, string(priceBodyBytes))
+				}
+			}
+		}
+	}
+
 	return &projectResp, nil
-}
-
-// CreateLeadRequest represents the request to create a lead in LightFUSION
-type CreateLeadRequest struct {
-	CompanyID    int     `json:"company_id"`
-	CreatorID    int     `json:"creator_id"`
-	Latitude     float64 `json:"latitude"`
-	Longitude    float64 `json:"longitude"`
-	Address      string  `json:"address"`
-	Source       int     `json:"source"`
-	PromoCode    *string `json:"promo_code,omitempty"`
-	Is2D         bool    `json:"is_2d"`
-	KwhUsage     float64 `json:"kwh_usage"`
-	SystemSize   float64 `json:"system_size,omitempty"`
-	PanelCount   int     `json:"panel_count,omitempty"`
-	PanelID      *int    `json:"panel_id,omitempty"`
-	InverterID   *int    `json:"inverter_id,omitempty"`
-	UtilityID    *int    `json:"utility_id,omitempty"`
-	RoofMaterial *int    `json:"roof_material,omitempty"`
-}
-
-// LeadResponse represents a lead from LightFUSION API
-type LeadResponse struct {
-	ID               int       `json:"id"`
-	CreatedAt        time.Time `json:"created_at"`
-	UpdatedAt        time.Time `json:"updated_at"`
-	State            int       `json:"state"`
-	CompanyID        int       `json:"company_id"`
-	CreatorID        int       `json:"creator_id"`
-	Latitude         float64   `json:"latitude"`
-	Longitude        float64   `json:"longitude"`
-	Address          string    `json:"address"`
-	Source           int       `json:"source"`
-	PromoCode        *string   `json:"promo_code"`
-	Is2D             bool      `json:"is_2d"`
-	KwhUsage         float64   `json:"kwh_usage"`
-	SystemSize       float64   `json:"system_size"`
-	PanelCount       int       `json:"panel_count"`
-	PanelID          *int      `json:"panel_id"`
-	InverterID       *int      `json:"inverter_id"`
-	UtilityID        *int      `json:"utility_id"`
-	RoofMaterial     *int      `json:"roof_material"`
-	AnnualProduction float64   `json:"annual_production"`
-	InstallationDate *string   `json:"installation_date"`
-}
-
-// CreateLead creates a lead in the external LightFUSION API
-func (c *LightFusionClient) CreateLead(ctx context.Context, req CreateLeadRequest) (*LeadResponse, error) {
-	body, err := json.Marshal(req)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request: %w", err)
-	}
-
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", c.baseURL+"/v1/lead/create", bytes.NewBuffer(body))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	httpReq.Header.Set("Content-Type", "application/json")
-	if c.apiKey != "" {
-		httpReq.Header.Set("Authorization", "Bearer "+c.apiKey)
-	}
-
-	resp, err := c.httpClient.Do(httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("failed to send request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
-		bodyBytes, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("API returned status %d: %s", resp.StatusCode, string(bodyBytes))
-	}
-
-	var leadResp LeadResponse
-	if err := json.NewDecoder(resp.Body).Decode(&leadResp); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
-	}
-
-	return &leadResp, nil
-}
-
-// GetLead retrieves a lead from the external API
-func (c *LightFusionClient) GetLead(ctx context.Context, leadID int) (*LeadResponse, error) {
-	httpReq, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("%s/v1/lead/%d", c.baseURL, leadID), nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	if c.apiKey != "" {
-		httpReq.Header.Set("Authorization", "Bearer "+c.apiKey)
-	}
-
-	resp, err := c.httpClient.Do(httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("failed to send request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		bodyBytes, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("API returned status %d: %s", resp.StatusCode, string(bodyBytes))
-	}
-
-	var leadResp LeadResponse
-	if err := json.NewDecoder(resp.Body).Decode(&leadResp); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
-	}
-
-	return &leadResp, nil
-}
-
-// UpdateLead updates a lead in the external API
-func (c *LightFusionClient) UpdateLead(ctx context.Context, leadID int, updates map[string]interface{}) (*LeadResponse, error) {
-	body, err := json.Marshal(updates)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request: %w", err)
-	}
-
-	httpReq, err := http.NewRequestWithContext(ctx, "PUT", fmt.Sprintf("%s/v1/lead/%d", c.baseURL, leadID), bytes.NewBuffer(body))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	httpReq.Header.Set("Content-Type", "application/json")
-	if c.apiKey != "" {
-		httpReq.Header.Set("Authorization", "Bearer "+c.apiKey)
-	}
-
-	resp, err := c.httpClient.Do(httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("failed to send request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		bodyBytes, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("API returned status %d: %s", resp.StatusCode, string(bodyBytes))
-	}
-
-	var leadResp LeadResponse
-	if err := json.NewDecoder(resp.Body).Decode(&leadResp); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
-	}
-
-	return &leadResp, nil
-}
-
-// ListLeads retrieves leads from the external API
-func (c *LightFusionClient) ListLeads(ctx context.Context, companyID int, limit, offset int) ([]LeadResponse, error) {
-	url := fmt.Sprintf("%s/v1/leads?company_id=%d&limit=%d&offset=%d", c.baseURL, companyID, limit, offset)
-
-	httpReq, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	if c.apiKey != "" {
-		httpReq.Header.Set("Authorization", "Bearer "+c.apiKey)
-	}
-
-	resp, err := c.httpClient.Do(httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("failed to send request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		bodyBytes, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("API returned status %d: %s", resp.StatusCode, string(bodyBytes))
-	}
-
-	var leadsResp struct {
-		Leads []LeadResponse `json:"leads"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&leadsResp); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
-	}
-
-	return leadsResp.Leads, nil
 }

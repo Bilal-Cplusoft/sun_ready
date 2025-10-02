@@ -17,6 +17,106 @@
     "host": "localhost:8080",
     "basePath": "/api",
     "paths": {
+        "/api/projects/3d": {
+            "post": {
+                "description": "Creates a 3D model from Google Earth data and calculates energy requirements and costs",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "projects"
+                ],
+                "summary": "Create a 3D solar project with energy calculations",
+                "parameters": [
+                    {
+                        "description": "Project details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.Create3DProjectRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Create3DProjectResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/projects/3d/{id}": {
+            "get": {
+                "description": "Retrieves the status and details of a 3D solar project",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "projects"
+                ],
+                "summary": "Get 3D project status",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "House ID",
+                        "name": "house_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response structure from LightFusion API",
+                        "schema": {
+                            "$ref": "#/definitions/client.Status3DProjectResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/login": {
             "post": {
                 "description": "Authenticate user and return JWT token",
@@ -1010,384 +1110,138 @@
                     }
                 }
             }
-        },
-        "/leads": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Get a list of all leads with pagination",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "leads"
-                ],
-                "summary": "List all leads",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "default": 10,
-                        "description": "Limit",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 0,
-                        "description": "Offset",
-                        "name": "offset",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handler.LeadsResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Create a new lead with the provided details",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "leads"
-                ],
-                "summary": "Create a new lead",
-                "parameters": [
-                    {
-                        "description": "Lead details",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handler.CreateLeadRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/handler.LeadResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/leads/company/{company_id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Get a list of leads for a specific company",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "leads"
-                ],
-                "summary": "List leads by company",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Company ID",
-                        "name": "company_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "default": 10,
-                        "description": "Limit",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 0,
-                        "description": "Offset",
-                        "name": "offset",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handler.LeadsResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/leads/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Get a lead by its ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "leads"
-                ],
-                "summary": "Get lead by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Lead ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handler.LeadResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Update a lead's details",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "leads"
-                ],
-                "summary": "Update lead",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Lead ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Lead update details",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handler.UpdateLeadRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handler.LeadResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Delete a lead by ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "leads"
-                ],
-                "summary": "Delete lead",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Lead ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "boolean"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/leads/{id}/state": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Update the state of a lead",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "leads"
-                ],
-                "summary": "Update lead state",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Lead ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "State",
-                        "name": "state",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "integer"
-                            }
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "boolean"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
+        "client.Adder": {
+            "type": "object",
+            "properties": {
+                "Active": {
+                    "type": "boolean"
+                },
+                "AllSystemSizes": {
+                    "type": "boolean"
+                },
+                "Category": {
+                    "type": "string"
+                },
+                "CategoryID": {
+                    "type": "integer"
+                },
+                "CategoryName": {
+                    "type": "string"
+                },
+                "CompanyID": {
+                    "type": "integer"
+                },
+                "Cost": {
+                    "type": "number"
+                },
+                "CostType": {
+                    "type": "string"
+                },
+                "CreatedAt": {
+                    "type": "string"
+                },
+                "CustomPrice": {
+                    "type": "number"
+                },
+                "ExpiredAt": {},
+                "ID": {
+                    "type": "integer"
+                },
+                "IsAutomatic": {
+                    "type": "boolean"
+                },
+                "LenderMapping": {
+                    "type": "string"
+                },
+                "MaxSystemSize": {
+                    "type": "integer"
+                },
+                "MinSystemSize": {
+                    "type": "integer"
+                },
+                "Name": {
+                    "type": "string"
+                },
+                "Quantity": {
+                    "type": "integer"
+                },
+                "States": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "UpdatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "client.PriceBreakdown": {
+            "type": "object",
+            "properties": {
+                "base_price_per_watt": {
+                    "type": "number"
+                },
+                "default_base_price": {
+                    "type": "number"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/client.PriceItem"
+                    }
+                },
+                "minimum_base_price": {
+                    "type": "number"
+                },
+                "total_amount": {
+                    "type": "number"
+                },
+                "total_amount_without_dealer_fee": {
+                    "type": "number"
+                },
+                "total_fee": {
+                    "type": "number"
+                },
+                "total_price_per_watt": {
+                    "type": "number"
+                },
+                "total_price_per_watt_financed": {
+                    "type": "number"
+                }
+            }
+        },
+        "client.PriceItem": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                }
+            }
+        },
+        "client.Status3DProjectResponse": {
+            "type": "object",
+            "properties": {
+                "adders": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/client.Adder"
+                    }
+                },
+                "inverter": {},
+                "panel": {},
+                "price_breakdown": {
+                    "$ref": "#/definitions/client.PriceBreakdown"
+                },
+                "storage": {}
+            }
+        },
         "handler.AddCompanyRequest": {
             "type": "object",
             "properties": {
@@ -1398,6 +1252,31 @@
                 "main_user_id": {
                     "type": "integer",
                     "example": 1
+                }
+            }
+        },
+        "handler.AddressRequest": {
+            "type": "object",
+            "properties": {
+                "Postalcode": {
+                    "type": "string",
+                    "example": "94102"
+                },
+                "city": {
+                    "type": "string",
+                    "example": "San Francisco"
+                },
+                "country": {
+                    "type": "string",
+                    "example": "USA"
+                },
+                "state": {
+                    "type": "string",
+                    "example": "CA"
+                },
+                "street": {
+                    "type": "string",
+                    "example": "123 Solar Street"
                 }
             }
         },
@@ -1430,6 +1309,106 @@
             "properties": {
                 "company": {
                     "$ref": "#/definitions/models.Company"
+                }
+            }
+        },
+        "handler.Create3DProjectRequest": {
+            "description": "Request body for creating a 3D solar project with energy calculations",
+            "type": "object",
+            "properties": {
+                "address": {
+                    "$ref": "#/definitions/handler.AddressRequest"
+                },
+                "consumption": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "example": [
+                        800,
+                        850,
+                        900,
+                        950,
+                        1000,
+                        1050,
+                        1100,
+                        1150,
+                        1200,
+                        1250,
+                        1300,
+                        1350
+                    ]
+                },
+                "hardware": {
+                    "$ref": "#/definitions/handler.HardwareRequest"
+                },
+                "homeowner": {
+                    "$ref": "#/definitions/handler.HomeownerRequest"
+                },
+                "latitude": {
+                    "type": "number",
+                    "example": 37.7749
+                },
+                "longitude": {
+                    "type": "number",
+                    "example": -122.4194
+                },
+                "lse_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "mode": {
+                    "type": "string",
+                    "example": "max"
+                },
+                "period": {
+                    "type": "string",
+                    "example": "month"
+                },
+                "target_solar_offset": {
+                    "type": "integer",
+                    "example": 100
+                },
+                "unit": {
+                    "type": "string",
+                    "example": "kwh"
+                }
+            }
+        },
+        "handler.Create3DProjectResponse": {
+            "type": "object",
+            "properties": {
+                "annual_production": {
+                    "type": "number",
+                    "example": 15000
+                },
+                "annual_savings": {
+                    "type": "number",
+                    "example": 2500
+                },
+                "estimated_cost": {
+                    "type": "number",
+                    "example": 25000
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 123
+                },
+                "lead_id": {
+                    "type": "integer",
+                    "example": 456
+                },
+                "message": {
+                    "type": "string",
+                    "example": "3D project created successfully. Processing in background."
+                },
+                "status": {
+                    "type": "string",
+                    "example": "processing"
+                },
+                "system_size": {
+                    "type": "number",
+                    "example": 10.5
                 }
             }
         },
@@ -1555,71 +1534,6 @@
                 }
             }
         },
-        "handler.CreateLeadRequest": {
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string",
-                    "example": "123 Solar St, San Francisco, CA 94102"
-                },
-                "company_id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "creator_id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "inverter_id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "is_2d": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "kwh_usage": {
-                    "type": "number",
-                    "example": 12000
-                },
-                "latitude": {
-                    "type": "number",
-                    "example": 37.7749
-                },
-                "longitude": {
-                    "type": "number",
-                    "example": -122.4194
-                },
-                "panel_count": {
-                    "type": "integer",
-                    "example": 30
-                },
-                "panel_id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "promo_code": {
-                    "type": "string",
-                    "example": "SOLAR2025"
-                },
-                "roof_material": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "source": {
-                    "type": "integer",
-                    "example": 0
-                },
-                "system_size": {
-                    "type": "number",
-                    "example": 10.5
-                },
-                "utility_id": {
-                    "type": "integer",
-                    "example": 1
-                }
-            }
-        },
         "handler.DealResponse": {
             "type": "object",
             "properties": {
@@ -1651,25 +1565,45 @@
                 }
             }
         },
-        "handler.LeadResponse": {
+        "handler.HardwareRequest": {
             "type": "object",
             "properties": {
-                "lead": {
-                    "$ref": "#/definitions/models.Lead"
+                "inverter_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "panel_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "storage_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "storage_quantity": {
+                    "type": "integer",
+                    "example": 2
                 }
             }
         },
-        "handler.LeadsResponse": {
+        "handler.HomeownerRequest": {
             "type": "object",
             "properties": {
-                "leads": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Lead"
-                    }
+                "email": {
+                    "type": "string",
+                    "example": "homeowner@example.com"
                 },
-                "total": {
-                    "type": "integer"
+                "first_name": {
+                    "type": "string",
+                    "example": "John"
+                },
+                "last_name": {
+                    "type": "string",
+                    "example": "Doe"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "+1234567890"
                 }
             }
         },
@@ -1846,67 +1780,6 @@
                 "total_cost": {
                     "type": "number",
                     "example": 25000
-                }
-            }
-        },
-        "handler.UpdateLeadRequest": {
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string",
-                    "example": "123 Solar St, San Francisco, CA 94102"
-                },
-                "annual_production": {
-                    "type": "number",
-                    "example": 13000
-                },
-                "installation_date": {
-                    "type": "string",
-                    "example": "2025-10-15"
-                },
-                "inverter_id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "kwh_usage": {
-                    "type": "number",
-                    "example": 12000
-                },
-                "latitude": {
-                    "type": "number",
-                    "example": 37.7749
-                },
-                "longitude": {
-                    "type": "number",
-                    "example": -122.4194
-                },
-                "panel_count": {
-                    "type": "integer",
-                    "example": 30
-                },
-                "panel_id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "promo_code": {
-                    "type": "string",
-                    "example": "SOLAR2025"
-                },
-                "roof_material": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "state": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "system_size": {
-                    "type": "number",
-                    "example": 10.5
-                },
-                "utility_id": {
-                    "type": "integer",
-                    "example": 1
                 }
             }
         },
@@ -2136,195 +2009,6 @@
                 "uuid": {
                     "type": "string",
                     "example": "550e8400-e29b-41d4-a716-446655440000"
-                }
-            }
-        },
-        "models.Lead": {
-            "type": "object",
-            "properties": {
-                "additional_incentive": {
-                    "type": "integer",
-                    "example": 1000
-                },
-                "address": {
-                    "type": "string",
-                    "example": "123 Solar St, San Francisco, CA 94102"
-                },
-                "annual_production": {
-                    "description": "Production",
-                    "type": "number",
-                    "example": 13000
-                },
-                "battery_count": {
-                    "type": "integer",
-                    "example": 0
-                },
-                "company_id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "creator_id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "date_installed": {
-                    "type": "string",
-                    "example": "2025-10-15"
-                },
-                "date_ntp": {
-                    "type": "string",
-                    "example": "2025-10-10"
-                },
-                "design_approved_state": {
-                    "type": "integer",
-                    "example": 0
-                },
-                "electricity_cost_post": {
-                    "type": "integer",
-                    "example": 50
-                },
-                "electricity_cost_pre": {
-                    "description": "Financial",
-                    "type": "integer",
-                    "example": 150
-                },
-                "external_lead_id": {
-                    "description": "External reference",
-                    "type": "integer",
-                    "example": 12345
-                },
-                "final_inspection_state": {
-                    "type": "integer",
-                    "example": 0
-                },
-                "financing_state": {
-                    "type": "integer",
-                    "example": 0
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "install_crew_state": {
-                    "type": "integer",
-                    "example": 0
-                },
-                "installation_date": {
-                    "description": "Dates",
-                    "type": "string",
-                    "example": "2025-10-15"
-                },
-                "installation_state": {
-                    "type": "integer",
-                    "example": 0
-                },
-                "inverter_count": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "inverter_id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "is_2d": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "kwh_per_kw_manual": {
-                    "type": "integer",
-                    "example": 1200
-                },
-                "kwh_usage": {
-                    "description": "Energy details",
-                    "type": "number",
-                    "example": 12000
-                },
-                "last_synced_at": {
-                    "type": "string"
-                },
-                "latitude": {
-                    "description": "Location",
-                    "type": "number",
-                    "example": 37.7749
-                },
-                "longitude": {
-                    "type": "number",
-                    "example": -122.4194
-                },
-                "panel_count": {
-                    "type": "integer",
-                    "example": 30
-                },
-                "panel_id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "permitting_approved_state": {
-                    "type": "integer",
-                    "example": 0
-                },
-                "promo_code": {
-                    "type": "string",
-                    "example": "SOLAR2025"
-                },
-                "pto_state": {
-                    "type": "integer",
-                    "example": 0
-                },
-                "roof_material": {
-                    "description": "Roof details",
-                    "type": "integer",
-                    "example": 1
-                },
-                "site_photos_state": {
-                    "type": "integer",
-                    "example": 0
-                },
-                "source": {
-                    "description": "Source and metadata",
-                    "type": "integer",
-                    "example": 0
-                },
-                "state": {
-                    "description": "Core fields (synced with external API)",
-                    "type": "integer",
-                    "example": 0
-                },
-                "surface_id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "sync_status": {
-                    "type": "string",
-                    "example": "synced"
-                },
-                "system_size": {
-                    "description": "System details",
-                    "type": "number",
-                    "example": 10.5
-                },
-                "tariff_id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "utility_bill_state": {
-                    "type": "integer",
-                    "example": 0
-                },
-                "utility_id": {
-                    "description": "Utility",
-                    "type": "integer",
-                    "example": 1
-                },
-                "welcome_call_state": {
-                    "description": "Workflow states",
-                    "type": "integer",
-                    "example": 0
                 }
             }
         }

@@ -1,5 +1,91 @@
 basePath: /api
 definitions:
+  client.Adder:
+    properties:
+      Active:
+        type: boolean
+      AllSystemSizes:
+        type: boolean
+      Category:
+        type: string
+      CategoryID:
+        type: integer
+      CategoryName:
+        type: string
+      CompanyID:
+        type: integer
+      Cost:
+        type: number
+      CostType:
+        type: string
+      CreatedAt:
+        type: string
+      CustomPrice:
+        type: number
+      ExpiredAt: {}
+      ID:
+        type: integer
+      IsAutomatic:
+        type: boolean
+      LenderMapping:
+        type: string
+      MaxSystemSize:
+        type: integer
+      MinSystemSize:
+        type: integer
+      Name:
+        type: string
+      Quantity:
+        type: integer
+      States:
+        items:
+          type: string
+        type: array
+      UpdatedAt:
+        type: string
+    type: object
+  client.PriceBreakdown:
+    properties:
+      base_price_per_watt:
+        type: number
+      default_base_price:
+        type: number
+      items:
+        items:
+          $ref: '#/definitions/client.PriceItem'
+        type: array
+      minimum_base_price:
+        type: number
+      total_amount:
+        type: number
+      total_amount_without_dealer_fee:
+        type: number
+      total_fee:
+        type: number
+      total_price_per_watt:
+        type: number
+      total_price_per_watt_financed:
+        type: number
+    type: object
+  client.PriceItem:
+    properties:
+      name:
+        type: string
+      price:
+        type: number
+    type: object
+  client.Status3DProjectResponse:
+    properties:
+      adders:
+        items:
+          $ref: '#/definitions/client.Adder'
+        type: array
+      inverter: {}
+      panel: {}
+      price_breakdown:
+        $ref: '#/definitions/client.PriceBreakdown'
+      storage: {}
+    type: object
   handler.AddCompanyRequest:
     properties:
       company_name:
@@ -8,6 +94,24 @@ definitions:
       main_user_id:
         example: 1
         type: integer
+    type: object
+  handler.AddressRequest:
+    properties:
+      Postalcode:
+        example: "94102"
+        type: string
+      city:
+        example: San Francisco
+        type: string
+      country:
+        example: USA
+        type: string
+      state:
+        example: CA
+        type: string
+      street:
+        example: 123 Solar Street
+        type: string
     type: object
   handler.AuthResponse:
     properties:
@@ -29,6 +133,81 @@ definitions:
     properties:
       company:
         $ref: '#/definitions/models.Company'
+    type: object
+  handler.Create3DProjectRequest:
+    description: Request body for creating a 3D solar project with energy calculations
+    properties:
+      address:
+        $ref: '#/definitions/handler.AddressRequest'
+      consumption:
+        example:
+        - 800
+        - 850
+        - 900
+        - 950
+        - 1000
+        - 1050
+        - 1100
+        - 1150
+        - 1200
+        - 1250
+        - 1300
+        - 1350
+        items:
+          type: integer
+        type: array
+      hardware:
+        $ref: '#/definitions/handler.HardwareRequest'
+      homeowner:
+        $ref: '#/definitions/handler.HomeownerRequest'
+      latitude:
+        example: 37.7749
+        type: number
+      longitude:
+        example: -122.4194
+        type: number
+      lse_id:
+        example: 1
+        type: integer
+      mode:
+        example: max
+        type: string
+      period:
+        example: month
+        type: string
+      target_solar_offset:
+        example: 100
+        type: integer
+      unit:
+        example: kwh
+        type: string
+    type: object
+  handler.Create3DProjectResponse:
+    properties:
+      annual_production:
+        example: 15000
+        type: number
+      annual_savings:
+        example: 2500
+        type: number
+      estimated_cost:
+        example: 25000
+        type: number
+      id:
+        example: 123
+        type: integer
+      lead_id:
+        example: 456
+        type: integer
+      message:
+        example: 3D project created successfully. Processing in background.
+        type: string
+      status:
+        example: processing
+        type: string
+      system_size:
+        example: 10.5
+        type: number
     type: object
   handler.CreateCompanyRequest:
     properties:
@@ -120,54 +299,6 @@ definitions:
         example: 25000
         type: number
     type: object
-  handler.CreateLeadRequest:
-    properties:
-      address:
-        example: 123 Solar St, San Francisco, CA 94102
-        type: string
-      company_id:
-        example: 1
-        type: integer
-      creator_id:
-        example: 1
-        type: integer
-      inverter_id:
-        example: 1
-        type: integer
-      is_2d:
-        example: false
-        type: boolean
-      kwh_usage:
-        example: 12000
-        type: number
-      latitude:
-        example: 37.7749
-        type: number
-      longitude:
-        example: -122.4194
-        type: number
-      panel_count:
-        example: 30
-        type: integer
-      panel_id:
-        example: 1
-        type: integer
-      promo_code:
-        example: SOLAR2025
-        type: string
-      roof_material:
-        example: 1
-        type: integer
-      source:
-        example: 0
-        type: integer
-      system_size:
-        example: 10.5
-        type: number
-      utility_id:
-        example: 1
-        type: integer
-    type: object
   handler.DealResponse:
     properties:
       deal:
@@ -188,19 +319,35 @@ definitions:
         example: error message
         type: string
     type: object
-  handler.LeadResponse:
+  handler.HardwareRequest:
     properties:
-      lead:
-        $ref: '#/definitions/models.Lead'
-    type: object
-  handler.LeadsResponse:
-    properties:
-      leads:
-        items:
-          $ref: '#/definitions/models.Lead'
-        type: array
-      total:
+      inverter_id:
+        example: 1
         type: integer
+      panel_id:
+        example: 1
+        type: integer
+      storage_id:
+        example: 1
+        type: integer
+      storage_quantity:
+        example: 2
+        type: integer
+    type: object
+  handler.HomeownerRequest:
+    properties:
+      email:
+        example: homeowner@example.com
+        type: string
+      first_name:
+        example: John
+        type: string
+      last_name:
+        example: Doe
+        type: string
+      phone:
+        example: "+1234567890"
+        type: string
     type: object
   handler.LoginRequest:
     properties:
@@ -330,51 +477,6 @@ definitions:
       total_cost:
         example: 25000
         type: number
-    type: object
-  handler.UpdateLeadRequest:
-    properties:
-      address:
-        example: 123 Solar St, San Francisco, CA 94102
-        type: string
-      annual_production:
-        example: 13000
-        type: number
-      installation_date:
-        example: "2025-10-15"
-        type: string
-      inverter_id:
-        example: 1
-        type: integer
-      kwh_usage:
-        example: 12000
-        type: number
-      latitude:
-        example: 37.7749
-        type: number
-      longitude:
-        example: -122.4194
-        type: number
-      panel_count:
-        example: 30
-        type: integer
-      panel_id:
-        example: 1
-        type: integer
-      promo_code:
-        example: SOLAR2025
-        type: string
-      roof_material:
-        example: 1
-        type: integer
-      state:
-        example: 1
-        type: integer
-      system_size:
-        example: 10.5
-        type: number
-      utility_id:
-        example: 1
-        type: integer
     type: object
   models.Company:
     properties:
@@ -546,149 +648,6 @@ definitions:
         example: 550e8400-e29b-41d4-a716-446655440000
         type: string
     type: object
-  models.Lead:
-    properties:
-      additional_incentive:
-        example: 1000
-        type: integer
-      address:
-        example: 123 Solar St, San Francisco, CA 94102
-        type: string
-      annual_production:
-        description: Production
-        example: 13000
-        type: number
-      battery_count:
-        example: 0
-        type: integer
-      company_id:
-        example: 1
-        type: integer
-      created_at:
-        type: string
-      creator_id:
-        example: 1
-        type: integer
-      date_installed:
-        example: "2025-10-15"
-        type: string
-      date_ntp:
-        example: "2025-10-10"
-        type: string
-      design_approved_state:
-        example: 0
-        type: integer
-      electricity_cost_post:
-        example: 50
-        type: integer
-      electricity_cost_pre:
-        description: Financial
-        example: 150
-        type: integer
-      external_lead_id:
-        description: External reference
-        example: 12345
-        type: integer
-      final_inspection_state:
-        example: 0
-        type: integer
-      financing_state:
-        example: 0
-        type: integer
-      id:
-        type: integer
-      install_crew_state:
-        example: 0
-        type: integer
-      installation_date:
-        description: Dates
-        example: "2025-10-15"
-        type: string
-      installation_state:
-        example: 0
-        type: integer
-      inverter_count:
-        example: 1
-        type: integer
-      inverter_id:
-        example: 1
-        type: integer
-      is_2d:
-        example: false
-        type: boolean
-      kwh_per_kw_manual:
-        example: 1200
-        type: integer
-      kwh_usage:
-        description: Energy details
-        example: 12000
-        type: number
-      last_synced_at:
-        type: string
-      latitude:
-        description: Location
-        example: 37.7749
-        type: number
-      longitude:
-        example: -122.4194
-        type: number
-      panel_count:
-        example: 30
-        type: integer
-      panel_id:
-        example: 1
-        type: integer
-      permitting_approved_state:
-        example: 0
-        type: integer
-      promo_code:
-        example: SOLAR2025
-        type: string
-      pto_state:
-        example: 0
-        type: integer
-      roof_material:
-        description: Roof details
-        example: 1
-        type: integer
-      site_photos_state:
-        example: 0
-        type: integer
-      source:
-        description: Source and metadata
-        example: 0
-        type: integer
-      state:
-        description: Core fields (synced with external API)
-        example: 0
-        type: integer
-      surface_id:
-        example: 1
-        type: integer
-      sync_status:
-        example: synced
-        type: string
-      system_size:
-        description: System details
-        example: 10.5
-        type: number
-      tariff_id:
-        example: 1
-        type: integer
-      updated_at:
-        type: string
-      utility_bill_state:
-        example: 0
-        type: integer
-      utility_id:
-        description: Utility
-        example: 1
-        type: integer
-      welcome_call_state:
-        description: Workflow states
-        example: 0
-        type: integer
-    type: object
 host: localhost:8080
 info:
   contact:
@@ -702,6 +661,73 @@ info:
   title: Sun Ready API
   version: "1.0"
 paths:
+  /api/projects/3d:
+    post:
+      consumes:
+      - application/json
+      description: Creates a 3D model from Google Earth data and calculates energy
+        requirements and costs
+      parameters:
+      - description: Project details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.Create3DProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.Create3DProjectResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Create a 3D solar project with energy calculations
+      tags:
+      - projects
+  /api/projects/3d/{id}:
+    get:
+      description: Retrieves the status and details of a 3D solar project
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: House ID
+        in: query
+        name: house_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Response structure from LightFusion API
+          schema:
+            $ref: '#/definitions/client.Status3DProjectResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Get 3D project status
+      tags:
+      - projects
   /auth/login:
     post:
       consumes:
@@ -1337,246 +1363,6 @@ paths:
       summary: Get deal by UUID
       tags:
       - deals
-  /leads:
-    get:
-      description: Get a list of all leads with pagination
-      parameters:
-      - default: 10
-        description: Limit
-        in: query
-        name: limit
-        type: integer
-      - default: 0
-        description: Offset
-        in: query
-        name: offset
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handler.LeadsResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: List all leads
-      tags:
-      - leads
-    post:
-      consumes:
-      - application/json
-      description: Create a new lead with the provided details
-      parameters:
-      - description: Lead details
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/handler.CreateLeadRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/handler.LeadResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Create a new lead
-      tags:
-      - leads
-  /leads/{id}:
-    delete:
-      description: Delete a lead by ID
-      parameters:
-      - description: Lead ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: boolean
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Delete lead
-      tags:
-      - leads
-    get:
-      description: Get a lead by its ID
-      parameters:
-      - description: Lead ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handler.LeadResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Get lead by ID
-      tags:
-      - leads
-    put:
-      consumes:
-      - application/json
-      description: Update a lead's details
-      parameters:
-      - description: Lead ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Lead update details
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/handler.UpdateLeadRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handler.LeadResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Update lead
-      tags:
-      - leads
-  /leads/{id}/state:
-    put:
-      consumes:
-      - application/json
-      description: Update the state of a lead
-      parameters:
-      - description: Lead ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: State
-        in: body
-        name: state
-        required: true
-        schema:
-          additionalProperties:
-            type: integer
-          type: object
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: boolean
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Update lead state
-      tags:
-      - leads
-  /leads/company/{company_id}:
-    get:
-      description: Get a list of leads for a specific company
-      parameters:
-      - description: Company ID
-        in: path
-        name: company_id
-        required: true
-        type: integer
-      - default: 10
-        description: Limit
-        in: query
-        name: limit
-        type: integer
-      - default: 0
-        description: Offset
-        in: query
-        name: offset
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handler.LeadsResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: List leads by company
-      tags:
-      - leads
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and JWT token.

@@ -17,28 +17,28 @@ services:
       timeout: 5s
       retries: 5
 
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: sunready-api
-    environment:
-      DATABASE_URL: postgres://sunready:sunready@postgres-sunready:5432/sunready?sslmode=disable
-      JWT_SECRET: sunready
-      PORT: 8080
-      ENV: development
-      LIGHTFUSION_API: http://localhost:8085
-      LIGHTFUSION_EMAIL: your-lightfusion-email@example.com
-      LIGHTFUSION_PASSWORD: your-lightfusion-password
+  # api:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: sunready-api
+  #   environment:
+  #     DATABASE_URL: postgres://sunready:sunready@postgres-sunready:5432/sunready?sslmode=disable
+  #     JWT_SECRET: sunready
+  #     PORT: 8080
+  #     ENV: development
+  #     LIGHTFUSION_API: http://localhost:8085
+  #     LIGHTFUSION_EMAIL: your-lightfusion-email@example.com
+  #     LIGHTFUSION_PASSWORD: your-lightfusion-password
 
-    ports:
-      - "8080:8080"
-    volumes:
-      - .:/app
-    depends_on:
-      postgres-sunready:
-        condition: service_healthy
-    restart: unless-stopped
+  #   ports:
+  #     - "8080:8080"
+  #   volumes:
+  #     - .:/app
+  #   depends_on:
+  #     postgres-sunready:
+  #       condition: service_healthy
+  #   restart: unless-stopped
 
 volumes:
   postgres_data:

@@ -20,4 +20,9 @@ ErrDealNotFound                = errors.New("deal not found")
 ErrInvalidLeadLatitude  = errors.New("latitude must be between -90 and 90")
 ErrInvalidLeadLongitude = errors.New("longitude must be between -180 and 180")
 ErrLeadNotFound         = errors.New("lead not found")
+
+// Proposal errors
+ErrInvalidProposalCode = errors.New("proposal code is required")
+ErrInvalidProposalCost = errors.New("system cost must be greater than or equal to 0")
+ErrProposalNotFound    = errors.New("proposal not found")
 )

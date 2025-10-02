@@ -1,0 +1,884 @@
+{
+	"info": {
+		"_postman_id": "sun-ready-api-collection",
+		"name": "Sun Ready API",
+		"description": "API for Sun Ready project management system",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"version": "1.0"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwt_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080/api",
+			"type": "string"
+		},
+		{
+			"key": "jwt_token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"company_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Register a new user with email and password"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"jwt_token\", jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Authenticate user and return JWT token"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Companies",
+			"item": [
+				{
+					"name": "List Companies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/companies?limit=10&offset=0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"companies"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Limit"
+								},
+								{
+									"key": "offset",
+									"value": "0",
+									"description": "Offset"
+								},
+								{
+									"key": "referred_by_user_id",
+									"value": "",
+									"description": "Filter by referred by user ID",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get a list of all companies with optional filtering"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Companies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/companies/all",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"companies",
+								"all"
+							],
+							"query": [
+								{
+									"key": "referred_by_user_id",
+									"value": "",
+									"description": "Filter by referred by user ID",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all companies without pagination with optional filtering"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Company",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Acme Corp\",\n  \"display_name\": \"Acme Corporation\",\n  \"code\": \"ACME\",\n  \"slug\": \"acme-corp\",\n  \"description\": \"Leading solar company\",\n  \"logo_path\": \"https://example.com/logo.png\",\n  \"baseline_adder\": 100,\n  \"sales_commission_default\": 0.1,\n  \"sales_commission_min\": 0.05,\n  \"sales_commission_max\": 0.15\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/companies",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"companies"
+							]
+						},
+						"description": "Create a new company with the provided details"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Company with User Migration",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"company_name\": \"New Solar Company\",\n  \"main_user_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/companies/add",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"companies",
+								"add"
+							]
+						},
+						"description": "Creates a new company and migrates the main user and their descendants to it"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Company by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/companies/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"companies",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "Company ID"
+								}
+							]
+						},
+						"description": "Get a company by its ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Company by Slug",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/companies/slug/:slug",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"companies",
+								"slug",
+								":slug"
+							],
+							"variable": [
+								{
+									"key": "slug",
+									"value": "acme-corp",
+									"description": "Company Slug"
+								}
+							]
+						},
+						"description": "Get a company by its slug"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Company",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Acme Corp\",\n  \"display_name\": \"Acme Corporation\",\n  \"code\": \"ACME\",\n  \"slug\": \"acme-corp\",\n  \"description\": \"Leading solar company\",\n  \"logo_path\": \"https://example.com/logo.png\",\n  \"baseline\": 1000,\n  \"baseline_adder\": 100,\n  \"baseline_adder_pct_sales_comms\": 10,\n  \"contract_tag\": \"STANDARD\",\n  \"is_active\": true,\n  \"sales_commission_default\": 0.1,\n  \"sales_commission_min\": 0.05,\n  \"sales_commission_max\": 0.15\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/companies/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"companies",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "Company ID"
+								}
+							]
+						},
+						"description": "Update a company's details"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Company",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/companies/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"companies",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "Company ID"
+								}
+							]
+						},
+						"description": "Delete a company by ID"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Leads",
+			"item": [
+				{
+					"name": "List Leads",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/leads?limit=10&offset=0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"leads"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Limit"
+								},
+								{
+									"key": "offset",
+									"value": "0",
+									"description": "Offset"
+								}
+							]
+						},
+						"description": "Get a list of all leads with pagination"
+					},
+					"response": []
+				},
+				{
+					"name": "List Leads by Company",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/leads/company/:company_id?limit=10&offset=0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"leads",
+								"company",
+								":company_id"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Limit"
+								},
+								{
+									"key": "offset",
+									"value": "0",
+									"description": "Offset"
+								}
+							],
+							"variable": [
+								{
+									"key": "company_id",
+									"value": "1",
+									"description": "Company ID"
+								}
+							]
+						},
+						"description": "Get a list of leads for a specific company"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Lead",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"company_id\": 1,\n  \"creator_id\": 1,\n  \"address\": \"123 Solar St, San Francisco, CA 94102\",\n  \"latitude\": 37.7749,\n  \"longitude\": -122.4194,\n  \"system_size\": 10.5,\n  \"panel_count\": 30,\n  \"panel_id\": 1,\n  \"inverter_id\": 1,\n  \"utility_id\": 1,\n  \"kwh_usage\": 12000,\n  \"roof_material\": 1,\n  \"source\": 0,\n  \"is_2d\": false,\n  \"promo_code\": \"SOLAR2025\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/leads",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"leads"
+							]
+						},
+						"description": "Create a new lead with the provided details"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Lead by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/leads/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"leads",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "Lead ID"
+								}
+							]
+						},
+						"description": "Get a lead by its ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Lead",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"address\": \"123 Solar St, San Francisco, CA 94102\",\n  \"latitude\": 37.7749,\n  \"longitude\": -122.4194,\n  \"system_size\": 10.5,\n  \"panel_count\": 30,\n  \"panel_id\": 1,\n  \"inverter_id\": 1,\n  \"utility_id\": 1,\n  \"kwh_usage\": 12000,\n  \"roof_material\": 1,\n  \"state\": 1,\n  \"annual_production\": 13000,\n  \"installation_date\": \"2025-10-15\",\n  \"promo_code\": \"SOLAR2025\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/leads/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"leads",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "Lead ID"
+								}
+							]
+						},
+						"description": "Update a lead's details"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Lead State",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"state\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/leads/:id/state",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"leads",
+								":id",
+								"state"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "Lead ID"
+								}
+							]
+						},
+						"description": "Update the state of a lead"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Lead",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/leads/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"leads",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "Lead ID"
+								}
+							]
+						},
+						"description": "Delete a lead by ID"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Deals",
+			"item": [
+				{
+					"name": "List Deals",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/deals?limit=10&offset=0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"deals"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Limit"
+								},
+								{
+									"key": "offset",
+									"value": "0",
+									"description": "Offset"
+								}
+							]
+						},
+						"description": "Get a list of all deals with pagination"
+					},
+					"response": []
+				},
+				{
+					"name": "List Deals by Company",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/deals/company/:company_id?limit=10&offset=0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"deals",
+								"company",
+								":company_id"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Limit"
+								},
+								{
+									"key": "offset",
+									"value": "0",
+									"description": "Offset"
+								}
+							],
+							"variable": [
+								{
+									"key": "company_id",
+									"value": "1",
+									"description": "Company ID"
+								}
+							]
+						},
+						"description": "Get a list of deals for a specific company"
+					},
+					"response": []
+				},
+				{
+					"name": "List Signed Deals",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/deals/company/:company_id/signed?limit=10&offset=0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"deals",
+								"company",
+								":company_id",
+								"signed"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Limit"
+								},
+								{
+									"key": "offset",
+									"value": "0",
+									"description": "Offset"
+								}
+							],
+							"variable": [
+								{
+									"key": "company_id",
+									"value": "1",
+									"description": "Company ID"
+								}
+							]
+						},
+						"description": "Get a list of signed deals for a company"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Deal",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"company_id\": 1,\n  \"sales_id\": 1,\n  \"homeowner_id\": 2,\n  \"project_id\": 1,\n  \"document_id\": 1,\n  \"address\": \"123 Solar Street, CA 90210\",\n  \"system_size\": 10.5,\n  \"panel_count\": 30,\n  \"consumption_kwh\": 12000,\n  \"production_kwh\": 13000,\n  \"target_epc\": 2.5,\n  \"total_cost\": 25000,\n  \"hardware_cost\": 15000,\n  \"installation_cost\": 8000,\n  \"sales_commission_cost\": 2000,\n  \"profit\": 5000,\n  \"financing_provider\": \"SunPower Financial\",\n  \"financing_option_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/deals",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"deals"
+							]
+						},
+						"description": "Create a new deal with the provided details"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Deal by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/deals/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"deals",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "Deal ID"
+								}
+							]
+						},
+						"description": "Get a deal by its ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Deal by UUID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/deals/uuid/:uuid",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"deals",
+								"uuid",
+								":uuid"
+							],
+							"variable": [
+								{
+									"key": "uuid",
+									"value": "550e8400-e29b-41d4-a716-446655440000",
+									"description": "Deal UUID"
+								}
+							]
+						},
+						"description": "Get a deal by its UUID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Deal",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"address\": \"123 Solar Street, CA 90210\",\n  \"system_size\": 10.5,\n  \"panel_count\": 30,\n  \"consumption_kwh\": 12000,\n  \"production_kwh\": 13000,\n  \"target_epc\": 2.5,\n  \"total_cost\": 25000,\n  \"hardware_cost\": 15000,\n  \"installation_cost\": 8000,\n  \"sales_commission_cost\": 2000,\n  \"profit\": 5000,\n  \"financing_provider\": \"SunPower Financial\",\n  \"financing_option_id\": 1,\n  \"document_id\": 1,\n  \"status\": \"approved\",\n  \"signed_at\": \"2025-10-01T10:00:00Z\",\n  \"approved_at\": \"2025-10-02T10:00:00Z\",\n  \"installed_at\": \"2025-10-15T10:00:00Z\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/deals/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"deals",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "Deal ID"
+								}
+							]
+						},
+						"description": "Update a deal's details"
+					},
+					"response": []
+				},
+				{
+					"name": "Archive Deal",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/deals/:id/archive",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"deals",
+								":id",
+								"archive"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "Deal ID"
+								}
+							]
+						},
+						"description": "Archive a deal by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Unarchive Deal",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/deals/:id/unarchive",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"deals",
+								":id",
+								"unarchive"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "Deal ID"
+								}
+							]
+						},
+						"description": "Unarchive a deal by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Deal",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/deals/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"deals",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "Deal ID"
+								}
+							]
+						},
+						"description": "Delete a deal by ID"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

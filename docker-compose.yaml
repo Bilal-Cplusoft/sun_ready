@@ -27,8 +27,10 @@ services:
       JWT_SECRET: sunready
       PORT: 8080
       ENV: development
-      LIGHTFUSION_API: https://api.lightfusion.com
-      LIGHTFUSION_API_KEY: your-api-key-here
+      LIGHTFUSION_API: http://localhost:8085
+      LIGHTFUSION_EMAIL: your-lightfusion-email@example.com
+      LIGHTFUSION_PASSWORD: your-lightfusion-password
+
     ports:
       - "8080:8080"
     volumes:

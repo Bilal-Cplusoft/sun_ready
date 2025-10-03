@@ -10,6 +10,10 @@ import (
 	"log"
 	"net/http"
 	"net/http/httputil"
+	"os"
+	"path/filepath"
+	"strings"
+	"sync"
 )
 
 type LightFusionClient struct {
@@ -132,6 +136,20 @@ type PriceBreakdown struct {
 type PriceItem struct {
 	Name  string  `json:"name"`
 	Price float64 `json:"price"`
+}
+
+type ProfilesFiles3DResponse struct {
+	ProjectID  int      `json:"project_id"`
+	JPGPath    string   `json:"jpg_path"`
+	OBJPath    string   `json:"obj_path"`
+	PLYPath    string   `json:"ply_path"`
+	MTLPath    string   `json:"mtl_path"`
+	JPGURL     string   `json:"jpg_url"`
+	OBJURL     string   `json:"obj_url"`
+	PLYURL     string   `json:"ply_url"`
+	MTLURL     string   `json:"mtl_url"`
+	Downloaded bool     `json:"downloaded"`
+	Errors     []string `json:"errors,omitempty"`
 }
 
 func (c *LightFusionClient) Login(ctx context.Context, email, password string) (string, error) {
@@ -325,4 +343,132 @@ func (c *LightFusionClient) GetProjectStatus(ctx context.Context, projectID int,
 	}
 
 	return &projectResp, nil
+}
+
+func (c *LightFusionClient) GetProjectFiles(ctx context.Context, projectID int) (*ProfilesFiles3DResponse, error) {
+	if c.apiKey == "" {
+		return nil, fmt.Errorf("not authenticated with LightFusion API")
+	}
+
+	response := &ProfilesFiles3DResponse{
+		ProjectID: projectID,
+		Errors:    []string{},
+	}
+
+	mediaDir := "./media"
+	projectDir := filepath.Join(mediaDir, fmt.Sprintf("%d", projectID))
+	if err := os.MkdirAll(projectDir, 0755); err != nil {
+		return nil, fmt.Errorf("failed to create directory: %w", err)
+	}
+
+	files := []struct {
+		filename string
+		path     *string
+		url      *string
+	}{
+		{"scene.jpg", &response.JPGPath, &response.JPGURL},
+		{"scene.obj", &response.OBJPath, &response.OBJURL},
+		{"scene.ply", &response.PLYPath, &response.PLYURL},
+		{"scene.mtl", &response.MTLPath, &response.MTLURL},
+	}
+
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	successCount := 0
+
+	for _, file := range files {
+		wg.Add(1)
+		go func(f struct {
+			filename string
+			path     *string
+			url      *string
+		}) {
+			defer wg.Done()
+
+			filePath := filepath.Join(projectDir, f.filename)
+			fileURL := fmt.Sprintf("/media/%d/%s", projectID, f.filename)
+
+			if _, err := os.Stat(filePath); err == nil {
+				log.Printf("File already exists: %s", filePath)
+				mu.Lock()
+				*f.path = filePath
+				*f.url = fileURL
+				successCount++
+				mu.Unlock()
+				return
+			}
+
+			endpoint := fmt.Sprintf("https://storage.googleapis.com/lightfusiondev/leads/%d/mesh/%s", projectID, f.filename)
+			if err := c.downloadMeshFile(ctx, endpoint, filePath); err != nil {
+				errMsg := fmt.Sprintf("failed to download %s: %v", f.filename, err)
+				log.Printf("Warning: %s", errMsg)
+				mu.Lock()
+				response.Errors = append(response.Errors, errMsg)
+				mu.Unlock()
+				return
+			}
+
+			mu.Lock()
+			*f.path = filePath
+			*f.url = fileURL
+			successCount++
+			mu.Unlock()
+
+			log.Printf("Successfully downloaded %s to %s", f.filename, filePath)
+		}(file)
+	}
+
+	wg.Wait()
+
+	response.Downloaded = successCount > 0
+
+	if successCount == 0 {
+		return response, fmt.Errorf("failed to download any mesh files")
+	}
+
+	return response, nil
+}
+
+func (c *LightFusionClient) downloadMeshFile(ctx context.Context, endpoint, destPath string) error {
+	req, err := http.NewRequestWithContext(ctx, "GET", endpoint, nil)
+	if err != nil {
+		return fmt.Errorf("failed to create request: %w", err)
+	}
+
+	req.Header.Set("Accept", "application/octet-stream")
+
+	if strings.Contains(endpoint, "api.lightfusion.io") {
+		req.Header.Set("Authorization", "Bearer "+c.apiKey)
+	}
+
+	log.Printf("Downloading file from %s", endpoint)
+	dump, _ := httputil.DumpRequestOut(req, true)
+	log.Printf("Outgoing request:\n%s", string(dump))
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to send request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("API returned status %d: %s", resp.StatusCode, string(bodyBytes))
+	}
+
+	out, err := os.Create(destPath)
+	if err != nil {
+		return fmt.Errorf("failed to create file: %w", err)
+	}
+	defer out.Close()
+
+	written, err := io.Copy(out, resp.Body)
+	if err != nil {
+		os.Remove(destPath)
+		return fmt.Errorf("failed to write file: %w", err)
+	}
+
+	log.Printf("Downloaded %d bytes to %s", written, destPath)
+
+	return nil
 }

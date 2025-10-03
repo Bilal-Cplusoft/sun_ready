@@ -162,6 +162,10 @@ func main() {
 
 	r.Post("/api/projects/3d", project3DHandler.Create3DProject)
 	r.Get("/api/projects/3d/{id}", project3DHandler.GetProjectStatus)
+	r.Get("/api/projects/3d/{id}/files", project3DHandler.GetProjectFiles3D)
+
+	fileServer := http.StripPrefix("/media/", http.FileServer(http.Dir("./media")))
+	r.Handle("/media/*", fileServer)
 
 	r.Get("/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8080/swagger/doc.json"),

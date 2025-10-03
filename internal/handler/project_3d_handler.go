@@ -220,6 +220,59 @@ func (h *Project3DHandler) GetProjectStatus(w http.ResponseWriter, r *http.Reque
 	respondWithJSON(w, http.StatusOK, resp)
 }
 
+// GetProjectFiles3D godoc
+// @Summary Get 3D project mesh files
+// @Description Downloads and retrieves 3D mesh files (JPG, OBJ, PLY, MTL) for a project
+// @Tags projects
+// @Produce json
+// @Param id path int true "Project ID"
+// @Success 200 {object} client.ProfilesFiles3DResponse "3D mesh files response"
+// @Failure 400 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /api/projects/3d/{id}/files [get]
+func (h *Project3DHandler) GetProjectFiles3D(w http.ResponseWriter, r *http.Request) {
+	var projectID int
+	_, err := fmt.Sscanf(r.URL.Path, "/api/projects/3d/%d/files", &projectID)
+	if err != nil {
+		_, err = fmt.Sscanf(r.URL.Path, "/projects/3d/%d/files", &projectID)
+		if err != nil {
+			errMsg := fmt.Sprintf("Invalid project ID in path '%s': %v", r.URL.Path, err)
+			log.Printf("Error: %s", errMsg)
+			respondWithError(w, http.StatusBadRequest, errMsg)
+			return
+		}
+	}
+
+	if projectID == 0 {
+		errMsg := "Project ID cannot be 0"
+		log.Printf("Error: %s", errMsg)
+		respondWithError(w, http.StatusBadRequest, errMsg)
+		return
+	}
+
+	resp, err := h.lightFusionClient.GetProjectFiles(r.Context(), projectID)
+	if err != nil {
+		errMsg := fmt.Sprintf("Failed to get project files for ID %d: %v", projectID, err)
+		log.Printf("Error: %s", errMsg)
+
+		statusCode := http.StatusInternalServerError
+		if strings.Contains(strings.ToLower(err.Error()), "not found") {
+			statusCode = http.StatusNotFound
+		} else if strings.Contains(strings.ToLower(err.Error()), "unauthorized") ||
+			strings.Contains(strings.ToLower(err.Error()), "not authenticated") {
+			statusCode = http.StatusUnauthorized
+		}
+
+		respondWithError(w, statusCode, errMsg)
+		return
+	}
+
+	log.Printf("Successfully retrieved project files for ID %d", projectID)
+
+	respondWithJSON(w, http.StatusOK, resp)
+}
+
 func respondWithError(w http.ResponseWriter, code int, message string) {
 	respondWithJSON(w, code, map[string]string{"error": message})
 }

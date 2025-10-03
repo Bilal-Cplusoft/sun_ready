@@ -156,3 +156,6 @@ __debug_bin
 # Crash log files
 crash.log
 hs_err_pid*
+
+
+media/

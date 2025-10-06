@@ -90,9 +90,7 @@ func main() {
 		token, err := lightFusionClient.Login(ctx, lightFusionEmail, lightFusionPassword)
 		if err != nil {
 			log.Printf("Warning: Failed to authenticate with LightFusion API: %v", err)
-			log.Println("3D project creation will require manual authentication")
 		} else {
-			log.Printf("Successfully authenticated with LightFusion API")
 			log.Printf("\n Session token obtained: %s \n", token)
 		}
 	} else {

@@ -90,35 +90,54 @@ type Create3DProjectResponse struct {
 	Adders           map[string]interface{} `json:"adders,omitempty"`
 }
 
-type Adder struct {
-	ID             int         `json:"ID"`
-	CompanyID      int         `json:"CompanyID"`
-	Name           string      `json:"Name"`
-	Category       string      `json:"Category"`
-	Cost           float64     `json:"Cost"`
-	CostType       string      `json:"CostType"`
-	States         []string    `json:"States"`
-	Active         bool        `json:"Active"`
-	CreatedAt      string      `json:"CreatedAt"`
-	UpdatedAt      string      `json:"UpdatedAt"`
-	ExpiredAt      interface{} `json:"ExpiredAt"`
-	CategoryID     int         `json:"CategoryID"`
-	IsAutomatic    bool        `json:"IsAutomatic"`
-	AllSystemSizes bool        `json:"AllSystemSizes"`
-	MinSystemSize  int         `json:"MinSystemSize"`
-	MaxSystemSize  int         `json:"MaxSystemSize"`
-	LenderMapping  string      `json:"LenderMapping"`
-	CategoryName   string      `json:"CategoryName"`
-	Quantity       int         `json:"Quantity"`
-	CustomPrice    float64     `json:"CustomPrice"`
-}
+
 
 type Status3DProjectResponse struct {
-	Panel          interface{}     `json:"panel"`
-	Inverter       interface{}     `json:"inverter"`
-	Storage        interface{}     `json:"storage"`
-	Adders         []Adder         `json:"adders"`
-	PriceBreakdown *PriceBreakdown `json:"price_breakdown,omitempty"`
+    Panel    *Panel    `json:"panel"`
+    Inverter []Inverter `json:"inverter"`
+    Adders   []Adder   `json:"adders"`
+    PriceBreakdown *PriceBreakdown `json:"price_breakdown,omitempty"`
+}
+
+type Panel struct {
+    ID           int     `json:"ID"`
+    Manufacturer string  `json:"Manufacturer"`
+    Model        string  `json:"Model"`
+    DisplayName  string  `json:"DisplayName"`
+    Active       bool    `json:"Active"`
+    IsDefault    bool    `json:"IsDefault"`
+    Power        float64 `json:"Power"`
+    PricePerWatt float64 `json:"PricePerWatt"`
+    IsDomestic   bool    `json:"IsDomestic"`
+}
+
+type Inverter struct {
+    Name         string  `json:"Name"`
+    CostType     string  `json:"CostType"`
+    Category     string  `json:"Category"`
+    IsActive     bool    `json:"IsActive"`
+    Cost         float64 `json:"Cost"`
+    ID           int     `json:"ID"`
+    Manufacturer string  `json:"Manufacturer"`
+    Capacity     float64 `json:"Capacity"`
+    Quantity     int     `json:"Quantity"`
+}
+
+
+type Adder struct {
+    ID          int      `json:"ID"`
+    CompanyID   int      `json:"CompanyID"`
+    Name        string   `json:"Name"`
+    Cost        float64  `json:"Cost"`
+    CostType    string   `json:"CostType"`
+    States      []string `json:"States"`
+    Active      bool     `json:"Active"`
+    CategoryID  int      `json:"CategoryID"`
+    IsAutomatic bool     `json:"IsAutomatic"`
+    MinSystemSize float64 `json:"MinSystemSize"`
+    MaxSystemSize float64 `json:"MaxSystemSize"`
+    Quantity    int      `json:"Quantity"`
+    CustomPrice float64  `json:"CustomPrice"`
 }
 
 type PriceBreakdown struct {
@@ -166,9 +185,6 @@ func (c *LightFusionClient) Login(ctx context.Context, email, password string) (
 
 	req.Header.Set("Content-Type", "application/json")
 
-	dump, _ := httputil.DumpRequestOut(req, true)
-	log.Printf("Request details:\n%s", string(dump))
-
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
@@ -181,7 +197,6 @@ func (c *LightFusionClient) Login(ctx context.Context, email, password string) (
 	defer resp.Body.Close()
 
 	respBody, _ := io.ReadAll(resp.Body)
-	log.Printf("Response status: %d, body: %s", resp.StatusCode, string(respBody))
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
 		return "", fmt.Errorf("login failed with status %d: %s", resp.StatusCode, string(respBody))
@@ -233,7 +248,6 @@ func (c *LightFusionClient) Create3DProject(ctx context.Context, req Create3DPro
 	defer resp.Body.Close()
 
 	bodyBytes, _ := io.ReadAll(resp.Body)
-	log.Printf("Response status: %d, body: %s", resp.StatusCode, string(bodyBytes))
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
 		return nil, fmt.Errorf("API returned status %d: %s", resp.StatusCode, string(bodyBytes))
@@ -288,16 +302,16 @@ func (c *LightFusionClient) GetProjectStatus(ctx context.Context, projectID int,
 
 	bodyBytes, _ := io.ReadAll(resp.Body)
 
+
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("API returned status %d: %s", resp.StatusCode, string(bodyBytes))
 	}
 
 	var projectResp Status3DProjectResponse
 	if err := json.Unmarshal(bodyBytes, &projectResp); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w, body: %s", err, string(bodyBytes))
+		return nil, fmt.Errorf(" hookah bar failed to decode response: %w, body: %s", err, string(bodyBytes))
 	}
 
-	// Fetch price breakdown
 	priceRequestBody := struct {
 		ProjectID int `json:"project_id"`
 		HouseID   int `json:"house_id"`
@@ -327,7 +341,6 @@ func (c *LightFusionClient) GetProjectStatus(ctx context.Context, projectID int,
 			} else {
 				defer priceResp.Body.Close()
 				priceBodyBytes, _ := io.ReadAll(priceResp.Body)
-
 				if priceResp.StatusCode == http.StatusOK {
 					var priceBreakdown PriceBreakdown
 					if err := json.Unmarshal(priceBodyBytes, &priceBreakdown); err != nil {

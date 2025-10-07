@@ -90,13 +90,146 @@ type Create3DProjectResponse struct {
 	Adders           map[string]interface{} `json:"adders,omitempty"`
 }
 
-
-
 type Status3DProjectResponse struct {
     Panel    *Panel    `json:"panel"`
     Inverter []Inverter `json:"inverter"`
     Adders   []Adder   `json:"adders"`
     PriceBreakdown *PriceBreakdown `json:"price_breakdown,omitempty"`
+    LeadCompletion *LeadCompletionResponse  `json:"lead_completion,omitempty"`
+}
+type LeadCompletionResponse struct {
+    Lead LeadData `json:"lead"`
+}
+
+type LeadData struct {
+    ID                    int                `json:"id"`
+    CreatedAt             string             `json:"created_at"`
+    UpdatedAt             string             `json:"updated_at"`
+    State                 int                `json:"state"`
+    Is2D                  bool               `json:"is_2d"`
+    EniumLoanIdentifier   *string            `json:"enium_loan_identifier"`
+    AdditionalIncentive   float64            `json:"additional_incentive"`
+    ElectricityCostPost   float64            `json:"electricity_cost_post"`
+    ElectricityCostPre    float64            `json:"electricity_cost_pre"`
+    Latitude              float64            `json:"latitude"`
+    Longitude             float64            `json:"longitude"`
+    CompanyID             int                `json:"company_id"`
+    HouseID               int                `json:"house_id"`
+    LeadID                int                `json:"lead_id"`
+    CreatorID             int                `json:"creator_id"`
+    Source                int                `json:"source"`
+    AccessCode            string             `json:"access_code"`
+    RoofMaterial          int                `json:"roof_material"`
+    FinancingProvider     FinancingProvider  `json:"financing_provider"`
+    Build                 BuildInfo          `json:"build"`
+    Address               AddressInfo        `json:"address"`
+    House                 HouseInfo          `json:"house"`
+    Production            ProductionInfo     `json:"production"`
+    CurrentProvider       ProviderInfo       `json:"current_provider"`
+    FutureProvider        ProviderInfo       `json:"future_provider"`
+    Company               CompanyInfo        `json:"company"`
+}
+
+type FinancingProvider struct {
+    Name   string          `json:"name"`
+    Option FinancingOption `json:"option"`
+}
+
+type FinancingOption struct {
+    ID             int     `json:"id"`
+    Name           string  `json:"name"`
+    InterestRate   float64 `json:"interest_rate"`
+    Type           int     `json:"type"`
+    Duration       int     `json:"duration"`
+    LoanFee        float64 `json:"loan_fee"`
+    LoanFeeFixed   float64 `json:"loan_fee_fixed"`
+}
+
+type BuildInfo struct {
+    ID       int `json:"id"`
+    State    int `json:"state"`
+    Progress int `json:"progress"`
+}
+
+type AddressInfo struct {
+    ID         int    `json:"id"`
+    Street     string `json:"street"`
+    City       string `json:"city"`
+    State      string `json:"state"`
+    PostalCode string `json:"postalcode"`
+    Country    string `json:"country"`
+}
+
+type HouseInfo struct {
+    ID            int          `json:"id"`
+    KwhUsage      int          `json:"kwh_usage"`
+    InverterCount int          `json:"inverter_count"`
+    BatteryCount  int          `json:"battery_count"`
+    Panel         PanelInfo    `json:"panel"`
+    Inverter      InverterInfo `json:"inverter"`
+    PanelCount    int          `json:"panel_count"`
+    SystemSize    int          `json:"system_size"`
+}
+
+type PanelInfo struct {
+    ID               int     `json:"id"`
+    Name             string  `json:"name"`
+    Manufacturer     string  `json:"manufacturer"`
+    MaxPowerCurrent  float64 `json:"max_power_current"`
+    MaxPowerVoltage  float64 `json:"max_power_voltage"`
+    Power            int     `json:"power"`
+}
+
+type InverterInfo struct {
+    ID           int    `json:"id"`
+    Name         string `json:"name"`
+    Manufacturer string `json:"manufacturer"`
+}
+
+type ProductionInfo struct {
+    ID        int     `json:"id"`
+    Annual    float64 `json:"annual"`
+    KwhPerKw  float64 `json:"kwh_per_kw"`
+}
+
+type ProviderInfo struct {
+    ID        int          `json:"id"`
+    UtilityID int          `json:"utility_id"`
+    Utility   UtilityInfo  `json:"utility"`
+    TariffID  int          `json:"tariff_id"`
+    Tariff    TariffInfo   `json:"tariff"`
+}
+
+type UtilityInfo struct {
+    ID   int    `json:"id"`
+    Name string `json:"name"`
+}
+
+type TariffInfo struct {
+    ID   int    `json:"id"`
+    Name string `json:"name"`
+}
+
+type CompanyInfo struct {
+    ID                          int     `json:"id"`
+    CreatedAt                   string  `json:"created_at"`
+    UpdatedAt                   string  `json:"updated_at"`
+    Name                        string  `json:"name"`
+    Slug                        string  `json:"slug"`
+    LogoPath                    string  `json:"logo_path"`
+    Colors                      *string `json:"colors"`
+    SalesCommissionMin          float64 `json:"sales_commission_min"`
+    SalesCommissionMax          float64 `json:"sales_commission_max"`
+    SalesCommissionDefault      float64 `json:"sales_commission_default"`
+    Baseline                    float64 `json:"baseline"`
+    BaselineAdder               float64 `json:"baseline_adder"`
+    BaselineAdderPctSalesComms  float64 `json:"baseline_adder_pct_sales_comms"`
+    ContractTag                 *string `json:"contract_tag"`
+    PanelStandardID             int     `json:"panel_standard_id"`
+    PanelPremiumID              int     `json:"panel_premium_id"`
+    Credits                     int     `json:"credits"`
+    CustomCommissions           bool    `json:"custom_commissions"`
+    PricingMode                 int     `json:"pricing_mode"`
 }
 
 type Panel struct {
@@ -354,6 +487,32 @@ func (c *LightFusionClient) GetProjectStatus(ctx context.Context, projectID int,
 			}
 		}
 	}
+	leadEndpoint := fmt.Sprintf("%s/v1/leads/%d/complete", c.baseURL, houseID)
+		leadReq, err := http.NewRequestWithContext(ctx, "POST", leadEndpoint, nil)
+		if err != nil {
+			log.Printf("Warning: failed to create lead completion request: %v", err)
+		} else {
+			leadReq.Header.Set("Accept", "application/json")
+			leadReq.Header.Set("Authorization", "Bearer "+c.apiKey)
+			log.Printf("Fetching lead completion data from %s for lead ID: %d", leadEndpoint, projectID)
+			leadResp, err := client.Do(leadReq)
+			if err != nil {
+				log.Printf("Warning: failed to fetch lead completion: %v", err)
+			} else {
+				defer leadResp.Body.Close()
+				leadBodyBytes, _ := io.ReadAll(leadResp.Body)
+				if leadResp.StatusCode == http.StatusOK || leadResp.StatusCode == http.StatusCreated {
+					var leadCompletion LeadCompletionResponse
+					if err := json.Unmarshal(leadBodyBytes, &leadCompletion); err != nil {
+						log.Printf("Warning: failed to decode lead completion: %v", err)
+					} else {
+						projectResp.LeadCompletion = &leadCompletion
+					}
+				} else {
+					log.Printf("Warning: lead completion API returned status %d: %s", leadResp.StatusCode, string(leadBodyBytes))
+				}
+			}
+		}
 
 	return &projectResp, nil
 }

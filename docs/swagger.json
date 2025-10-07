@@ -1157,6 +1157,58 @@
                     }
                 }
             }
+        },
+        "/quote": {
+            "post": {
+                "description": "Takes input parameters for a solar system and returns a detailed quote with costs, savings, and payback period.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "quote"
+                ],
+                "summary": "Calculate solar quote",
+                "parameters": [
+                    {
+                        "description": "Quote input payload",
+                        "name": "quote",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.QuoteInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/service.QuoteResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request payload",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to calculate quote",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1166,17 +1218,8 @@
                 "Active": {
                     "type": "boolean"
                 },
-                "AllSystemSizes": {
-                    "type": "boolean"
-                },
-                "Category": {
-                    "type": "string"
-                },
                 "CategoryID": {
                     "type": "integer"
-                },
-                "CategoryName": {
-                    "type": "string"
                 },
                 "CompanyID": {
                     "type": "integer"
@@ -1187,27 +1230,20 @@
                 "CostType": {
                     "type": "string"
                 },
-                "CreatedAt": {
-                    "type": "string"
-                },
                 "CustomPrice": {
                     "type": "number"
                 },
-                "ExpiredAt": {},
                 "ID": {
                     "type": "integer"
                 },
                 "IsAutomatic": {
                     "type": "boolean"
                 },
-                "LenderMapping": {
-                    "type": "string"
-                },
                 "MaxSystemSize": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "MinSystemSize": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "Name": {
                     "type": "string"
@@ -1220,9 +1256,363 @@
                     "items": {
                         "type": "string"
                     }
-                },
-                "UpdatedAt": {
+                }
+            }
+        },
+        "client.AddressInfo": {
+            "type": "object",
+            "properties": {
+                "city": {
                     "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "postalcode": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
+                }
+            }
+        },
+        "client.BuildInfo": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "progress": {
+                    "type": "integer"
+                },
+                "state": {
+                    "type": "integer"
+                }
+            }
+        },
+        "client.CompanyInfo": {
+            "type": "object",
+            "properties": {
+                "baseline": {
+                    "type": "number"
+                },
+                "baseline_adder": {
+                    "type": "number"
+                },
+                "baseline_adder_pct_sales_comms": {
+                    "type": "number"
+                },
+                "colors": {
+                    "type": "string"
+                },
+                "contract_tag": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "credits": {
+                    "type": "integer"
+                },
+                "custom_commissions": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "logo_path": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "panel_premium_id": {
+                    "type": "integer"
+                },
+                "panel_standard_id": {
+                    "type": "integer"
+                },
+                "pricing_mode": {
+                    "type": "integer"
+                },
+                "sales_commission_default": {
+                    "type": "number"
+                },
+                "sales_commission_max": {
+                    "type": "number"
+                },
+                "sales_commission_min": {
+                    "type": "number"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "client.FinancingOption": {
+            "type": "object",
+            "properties": {
+                "duration": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "interest_rate": {
+                    "type": "number"
+                },
+                "loan_fee": {
+                    "type": "number"
+                },
+                "loan_fee_fixed": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "client.FinancingProvider": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "option": {
+                    "$ref": "#/definitions/client.FinancingOption"
+                }
+            }
+        },
+        "client.HouseInfo": {
+            "type": "object",
+            "properties": {
+                "battery_count": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "inverter": {
+                    "$ref": "#/definitions/client.InverterInfo"
+                },
+                "inverter_count": {
+                    "type": "integer"
+                },
+                "kwh_usage": {
+                    "type": "integer"
+                },
+                "panel": {
+                    "$ref": "#/definitions/client.PanelInfo"
+                },
+                "panel_count": {
+                    "type": "integer"
+                },
+                "system_size": {
+                    "type": "integer"
+                }
+            }
+        },
+        "client.Inverter": {
+            "type": "object",
+            "properties": {
+                "Capacity": {
+                    "type": "number"
+                },
+                "Category": {
+                    "type": "string"
+                },
+                "Cost": {
+                    "type": "number"
+                },
+                "CostType": {
+                    "type": "string"
+                },
+                "ID": {
+                    "type": "integer"
+                },
+                "IsActive": {
+                    "type": "boolean"
+                },
+                "Manufacturer": {
+                    "type": "string"
+                },
+                "Name": {
+                    "type": "string"
+                },
+                "Quantity": {
+                    "type": "integer"
+                }
+            }
+        },
+        "client.InverterInfo": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "manufacturer": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "client.LeadCompletionResponse": {
+            "type": "object",
+            "properties": {
+                "lead": {
+                    "$ref": "#/definitions/client.LeadData"
+                }
+            }
+        },
+        "client.LeadData": {
+            "type": "object",
+            "properties": {
+                "access_code": {
+                    "type": "string"
+                },
+                "additional_incentive": {
+                    "type": "number"
+                },
+                "address": {
+                    "$ref": "#/definitions/client.AddressInfo"
+                },
+                "build": {
+                    "$ref": "#/definitions/client.BuildInfo"
+                },
+                "company": {
+                    "$ref": "#/definitions/client.CompanyInfo"
+                },
+                "company_id": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "creator_id": {
+                    "type": "integer"
+                },
+                "current_provider": {
+                    "$ref": "#/definitions/client.ProviderInfo"
+                },
+                "electricity_cost_post": {
+                    "type": "number"
+                },
+                "electricity_cost_pre": {
+                    "type": "number"
+                },
+                "enium_loan_identifier": {
+                    "type": "string"
+                },
+                "financing_provider": {
+                    "$ref": "#/definitions/client.FinancingProvider"
+                },
+                "future_provider": {
+                    "$ref": "#/definitions/client.ProviderInfo"
+                },
+                "house": {
+                    "$ref": "#/definitions/client.HouseInfo"
+                },
+                "house_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_2d": {
+                    "type": "boolean"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "lead_id": {
+                    "type": "integer"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "production": {
+                    "$ref": "#/definitions/client.ProductionInfo"
+                },
+                "roof_material": {
+                    "type": "integer"
+                },
+                "source": {
+                    "type": "integer"
+                },
+                "state": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "client.Panel": {
+            "type": "object",
+            "properties": {
+                "Active": {
+                    "type": "boolean"
+                },
+                "DisplayName": {
+                    "type": "string"
+                },
+                "ID": {
+                    "type": "integer"
+                },
+                "IsDefault": {
+                    "type": "boolean"
+                },
+                "IsDomestic": {
+                    "type": "boolean"
+                },
+                "Manufacturer": {
+                    "type": "string"
+                },
+                "Model": {
+                    "type": "string"
+                },
+                "Power": {
+                    "type": "number"
+                },
+                "PricePerWatt": {
+                    "type": "number"
+                }
+            }
+        },
+        "client.PanelInfo": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "manufacturer": {
+                    "type": "string"
+                },
+                "max_power_current": {
+                    "type": "number"
+                },
+                "max_power_voltage": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "power": {
+                    "type": "integer"
                 }
             }
         },
@@ -1272,6 +1662,20 @@
                 }
             }
         },
+        "client.ProductionInfo": {
+            "type": "object",
+            "properties": {
+                "annual": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "kwh_per_kw": {
+                    "type": "number"
+                }
+            }
+        },
         "client.ProfilesFiles3DResponse": {
             "type": "object",
             "properties": {
@@ -1313,6 +1717,26 @@
                 }
             }
         },
+        "client.ProviderInfo": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "tariff": {
+                    "$ref": "#/definitions/client.TariffInfo"
+                },
+                "tariff_id": {
+                    "type": "integer"
+                },
+                "utility": {
+                    "$ref": "#/definitions/client.UtilityInfo"
+                },
+                "utility_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "client.Status3DProjectResponse": {
             "type": "object",
             "properties": {
@@ -1322,12 +1746,43 @@
                         "$ref": "#/definitions/client.Adder"
                     }
                 },
-                "inverter": {},
-                "panel": {},
+                "inverter": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/client.Inverter"
+                    }
+                },
+                "lead_completion": {
+                    "$ref": "#/definitions/client.LeadCompletionResponse"
+                },
+                "panel": {
+                    "$ref": "#/definitions/client.Panel"
+                },
                 "price_breakdown": {
                     "$ref": "#/definitions/client.PriceBreakdown"
+                }
+            }
+        },
+        "client.TariffInfo": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
                 },
-                "storage": {}
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "client.UtilityInfo": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
             }
         },
         "handler.AddCompanyRequest": {
@@ -2097,6 +2552,112 @@
                 "uuid": {
                     "type": "string",
                     "example": "550e8400-e29b-41d4-a716-446655440000"
+                }
+            }
+        },
+        "service.QuoteInput": {
+            "type": "object",
+            "properties": {
+                "annualProductionKWh": {
+                    "type": "number",
+                    "format": "float64"
+                },
+                "annualUtilityIncrease": {
+                    "type": "number",
+                    "format": "float64"
+                },
+                "costPerWatt": {
+                    "type": "number",
+                    "format": "float64"
+                },
+                "electricalOffsetPct": {
+                    "type": "number",
+                    "format": "float64"
+                },
+                "federalTaxCredit": {
+                    "type": "number",
+                    "format": "float64"
+                },
+                "loanInterestRate": {
+                    "type": "number",
+                    "format": "float64"
+                },
+                "loanTermYears": {
+                    "type": "integer"
+                },
+                "monthlyElectricBill": {
+                    "type": "number",
+                    "format": "float64"
+                },
+                "panelCount": {
+                    "type": "integer"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "systemSizeKW": {
+                    "type": "number",
+                    "format": "float64"
+                },
+                "utilityRatePerKWh": {
+                    "type": "number",
+                    "format": "float64"
+                }
+            }
+        },
+        "service.QuoteResult": {
+            "type": "object",
+            "properties": {
+                "annual_production_kwh": {
+                    "type": "number"
+                },
+                "break_even_year": {
+                    "type": "integer"
+                },
+                "cost_per_watt": {
+                    "type": "number"
+                },
+                "current_monthly_bill": {
+                    "type": "number"
+                },
+                "electrical_offset_pct": {
+                    "type": "number"
+                },
+                "estimated_monthly_payment": {
+                    "type": "number"
+                },
+                "estimated_new_monthly_bill": {
+                    "type": "number"
+                },
+                "federal_tax_credit": {
+                    "type": "number"
+                },
+                "first_year_savings": {
+                    "type": "number"
+                },
+                "monthly_savings": {
+                    "type": "number"
+                },
+                "panel_count": {
+                    "type": "integer"
+                },
+                "simple_payback_years": {
+                    "type": "number"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "system_cost_after_incentives": {
+                    "type": "number"
+                },
+                "system_cost_before_incentives": {
+                    "type": "number"
+                },
+                "system_size_kw": {
+                    "type": "number"
+                },
+                "twenty_five_year_savings": {
+                    "type": "number"
                 }
             }
         }

@@ -80,6 +80,7 @@ func main() {
 	companyRepo := repo.NewCompanyRepo(db)
 	projectRepo := repo.NewProjectRepo(db)
 	dealRepo := repo.NewDealRepo(db)
+	quoteRepo := repo.NewQuoteRepo(db)
 
 	lightFusionClient := client.NewLightFusionClient(lightFusionURL, lightFusionAPIKey)
 	log.Printf("LightFUSION API integration enabled: %s", lightFusionURL)
@@ -102,6 +103,7 @@ func main() {
 	companyService := service.NewCompanyService(companyRepo)
 	projectService := service.NewProjectService(projectRepo)
 	dealService := service.NewDealService(dealRepo)
+	quoteService := service.NewQuoteService(quoteRepo)
 
 	authHandler := handler.NewAuthHandler(authService)
 	userHandler := handler.NewUserHandler(userService)
@@ -109,6 +111,7 @@ func main() {
 	projectHandler := handler.NewProjectHandler(projectService)
 	project3DHandler := handler.NewProject3DHandler(lightFusionClient)
 	dealHandler := handler.NewDealHandler(dealService)
+	quoteHandler := handler.NewQuoteHandler(quoteService)
 
 	r := chi.NewRouter()
 
@@ -161,6 +164,8 @@ func main() {
 	r.Post("/api/projects/3d", project3DHandler.Create3DProject)
 	r.Get("/api/projects/3d/{id}", project3DHandler.GetProjectStatus)
 	r.Get("/api/projects/3d/{id}/files", project3DHandler.GetProjectFiles3D)
+
+	r.Get("/api/quote/", quoteHandler.GetQuote)
 
 	fileServer := http.StripPrefix("/media/", http.FileServer(http.Dir("./media")))
 	r.Handle("/media/*", fileServer)

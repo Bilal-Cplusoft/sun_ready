@@ -4,35 +4,24 @@ definitions:
     properties:
       Active:
         type: boolean
-      AllSystemSizes:
-        type: boolean
-      Category:
-        type: string
       CategoryID:
         type: integer
-      CategoryName:
-        type: string
       CompanyID:
         type: integer
       Cost:
         type: number
       CostType:
         type: string
-      CreatedAt:
-        type: string
       CustomPrice:
         type: number
-      ExpiredAt: {}
       ID:
         type: integer
       IsAutomatic:
         type: boolean
-      LenderMapping:
-        type: string
       MaxSystemSize:
-        type: integer
+        type: number
       MinSystemSize:
-        type: integer
+        type: number
       Name:
         type: string
       Quantity:
@@ -41,8 +30,240 @@ definitions:
         items:
           type: string
         type: array
-      UpdatedAt:
+    type: object
+  client.AddressInfo:
+    properties:
+      city:
         type: string
+      country:
+        type: string
+      id:
+        type: integer
+      postalcode:
+        type: string
+      state:
+        type: string
+      street:
+        type: string
+    type: object
+  client.BuildInfo:
+    properties:
+      id:
+        type: integer
+      progress:
+        type: integer
+      state:
+        type: integer
+    type: object
+  client.CompanyInfo:
+    properties:
+      baseline:
+        type: number
+      baseline_adder:
+        type: number
+      baseline_adder_pct_sales_comms:
+        type: number
+      colors:
+        type: string
+      contract_tag:
+        type: string
+      created_at:
+        type: string
+      credits:
+        type: integer
+      custom_commissions:
+        type: boolean
+      id:
+        type: integer
+      logo_path:
+        type: string
+      name:
+        type: string
+      panel_premium_id:
+        type: integer
+      panel_standard_id:
+        type: integer
+      pricing_mode:
+        type: integer
+      sales_commission_default:
+        type: number
+      sales_commission_max:
+        type: number
+      sales_commission_min:
+        type: number
+      slug:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  client.FinancingOption:
+    properties:
+      duration:
+        type: integer
+      id:
+        type: integer
+      interest_rate:
+        type: number
+      loan_fee:
+        type: number
+      loan_fee_fixed:
+        type: number
+      name:
+        type: string
+      type:
+        type: integer
+    type: object
+  client.FinancingProvider:
+    properties:
+      name:
+        type: string
+      option:
+        $ref: '#/definitions/client.FinancingOption'
+    type: object
+  client.HouseInfo:
+    properties:
+      battery_count:
+        type: integer
+      id:
+        type: integer
+      inverter:
+        $ref: '#/definitions/client.InverterInfo'
+      inverter_count:
+        type: integer
+      kwh_usage:
+        type: integer
+      panel:
+        $ref: '#/definitions/client.PanelInfo'
+      panel_count:
+        type: integer
+      system_size:
+        type: integer
+    type: object
+  client.Inverter:
+    properties:
+      Capacity:
+        type: number
+      Category:
+        type: string
+      Cost:
+        type: number
+      CostType:
+        type: string
+      ID:
+        type: integer
+      IsActive:
+        type: boolean
+      Manufacturer:
+        type: string
+      Name:
+        type: string
+      Quantity:
+        type: integer
+    type: object
+  client.InverterInfo:
+    properties:
+      id:
+        type: integer
+      manufacturer:
+        type: string
+      name:
+        type: string
+    type: object
+  client.LeadCompletionResponse:
+    properties:
+      lead:
+        $ref: '#/definitions/client.LeadData'
+    type: object
+  client.LeadData:
+    properties:
+      access_code:
+        type: string
+      additional_incentive:
+        type: number
+      address:
+        $ref: '#/definitions/client.AddressInfo'
+      build:
+        $ref: '#/definitions/client.BuildInfo'
+      company:
+        $ref: '#/definitions/client.CompanyInfo'
+      company_id:
+        type: integer
+      created_at:
+        type: string
+      creator_id:
+        type: integer
+      current_provider:
+        $ref: '#/definitions/client.ProviderInfo'
+      electricity_cost_post:
+        type: number
+      electricity_cost_pre:
+        type: number
+      enium_loan_identifier:
+        type: string
+      financing_provider:
+        $ref: '#/definitions/client.FinancingProvider'
+      future_provider:
+        $ref: '#/definitions/client.ProviderInfo'
+      house:
+        $ref: '#/definitions/client.HouseInfo'
+      house_id:
+        type: integer
+      id:
+        type: integer
+      is_2d:
+        type: boolean
+      latitude:
+        type: number
+      lead_id:
+        type: integer
+      longitude:
+        type: number
+      production:
+        $ref: '#/definitions/client.ProductionInfo'
+      roof_material:
+        type: integer
+      source:
+        type: integer
+      state:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  client.Panel:
+    properties:
+      Active:
+        type: boolean
+      DisplayName:
+        type: string
+      ID:
+        type: integer
+      IsDefault:
+        type: boolean
+      IsDomestic:
+        type: boolean
+      Manufacturer:
+        type: string
+      Model:
+        type: string
+      Power:
+        type: number
+      PricePerWatt:
+        type: number
+    type: object
+  client.PanelInfo:
+    properties:
+      id:
+        type: integer
+      manufacturer:
+        type: string
+      max_power_current:
+        type: number
+      max_power_voltage:
+        type: number
+      name:
+        type: string
+      power:
+        type: integer
     type: object
   client.PriceBreakdown:
     properties:
@@ -74,6 +295,15 @@ definitions:
       price:
         type: number
     type: object
+  client.ProductionInfo:
+    properties:
+      annual:
+        type: number
+      id:
+        type: integer
+      kwh_per_kw:
+        type: number
+    type: object
   client.ProfilesFiles3DResponse:
     properties:
       downloaded:
@@ -101,17 +331,49 @@ definitions:
       project_id:
         type: integer
     type: object
+  client.ProviderInfo:
+    properties:
+      id:
+        type: integer
+      tariff:
+        $ref: '#/definitions/client.TariffInfo'
+      tariff_id:
+        type: integer
+      utility:
+        $ref: '#/definitions/client.UtilityInfo'
+      utility_id:
+        type: integer
+    type: object
   client.Status3DProjectResponse:
     properties:
       adders:
         items:
           $ref: '#/definitions/client.Adder'
         type: array
-      inverter: {}
-      panel: {}
+      inverter:
+        items:
+          $ref: '#/definitions/client.Inverter'
+        type: array
+      lead_completion:
+        $ref: '#/definitions/client.LeadCompletionResponse'
+      panel:
+        $ref: '#/definitions/client.Panel'
       price_breakdown:
         $ref: '#/definitions/client.PriceBreakdown'
-      storage: {}
+    type: object
+  client.TariffInfo:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  client.UtilityInfo:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
     type: object
   handler.AddCompanyRequest:
     properties:
@@ -674,6 +936,79 @@ definitions:
       uuid:
         example: 550e8400-e29b-41d4-a716-446655440000
         type: string
+    type: object
+  service.QuoteInput:
+    properties:
+      annualProductionKWh:
+        format: float64
+        type: number
+      annualUtilityIncrease:
+        format: float64
+        type: number
+      costPerWatt:
+        format: float64
+        type: number
+      electricalOffsetPct:
+        format: float64
+        type: number
+      federalTaxCredit:
+        format: float64
+        type: number
+      loanInterestRate:
+        format: float64
+        type: number
+      loanTermYears:
+        type: integer
+      monthlyElectricBill:
+        format: float64
+        type: number
+      panelCount:
+        type: integer
+      state:
+        type: string
+      systemSizeKW:
+        format: float64
+        type: number
+      utilityRatePerKWh:
+        format: float64
+        type: number
+    type: object
+  service.QuoteResult:
+    properties:
+      annual_production_kwh:
+        type: number
+      break_even_year:
+        type: integer
+      cost_per_watt:
+        type: number
+      current_monthly_bill:
+        type: number
+      electrical_offset_pct:
+        type: number
+      estimated_monthly_payment:
+        type: number
+      estimated_new_monthly_bill:
+        type: number
+      federal_tax_credit:
+        type: number
+      first_year_savings:
+        type: number
+      monthly_savings:
+        type: number
+      panel_count:
+        type: integer
+      simple_payback_years:
+        type: number
+      summary:
+        type: string
+      system_cost_after_incentives:
+        type: number
+      system_cost_before_incentives:
+        type: number
+      system_size_kw:
+        type: number
+      twenty_five_year_savings:
+        type: number
     type: object
 host: localhost:8080
 info:
@@ -1422,6 +1757,41 @@ paths:
       summary: Get deal by UUID
       tags:
       - deals
+  /quote:
+    post:
+      consumes:
+      - application/json
+      description: Takes input parameters for a solar system and returns a detailed
+        quote with costs, savings, and payback period.
+      parameters:
+      - description: Quote input payload
+        in: body
+        name: quote
+        required: true
+        schema:
+          $ref: '#/definitions/service.QuoteInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.QuoteResult'
+        "400":
+          description: Invalid request payload
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to calculate quote
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Calculate solar quote
+      tags:
+      - quote
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and JWT token.

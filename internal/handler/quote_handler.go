@@ -25,7 +25,7 @@ func NewQuoteHandler(quoteService *service.QuoteService) *QuoteHandler {
 // @Success      200    {object}  service.QuoteResult
 // @Failure      400    {object}  map[string]string  "Invalid request payload"
 // @Failure      500    {object}  map[string]string  "Failed to calculate quote"
-// @Router       /quote [post]
+// @Router       /api/quote [post]
 func (h *QuoteHandler) GetQuote(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)

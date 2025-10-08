@@ -30,11 +30,10 @@ import (
 // @contact.name API Support
 // @contact.email support@sunready.com
 
-// @license.name MIT
-// @license.url https://opensource.org/licenses/MIT
+// @license.name Sun Ready Private License
+// @license.url INTERNAL
 
 // @host localhost:8080
-// @BasePath /api
 
 // @securityDefinitions.apikey BearerAuth
 // @in header
@@ -165,7 +164,7 @@ func main() {
 	r.Get("/api/projects/3d/{id}", project3DHandler.GetProjectStatus)
 	r.Get("/api/projects/3d/{id}/files", project3DHandler.GetProjectFiles3D)
 
-	r.Get("/api/quote/", quoteHandler.GetQuote)
+	r.Post("/api/quote", quoteHandler.GetQuote)
 
 	fileServer := http.StripPrefix("/media/", http.FileServer(http.Dir("./media")))
 	r.Handle("/media/*", fileServer)

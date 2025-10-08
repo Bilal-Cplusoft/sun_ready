@@ -76,7 +76,7 @@ type CompaniesResponse struct {
 // @Success 201 {object} CompanyResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /companies [post]
+// @Router /api/companies [post]
 func (h *CompanyHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var req CreateCompanyRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -122,7 +122,7 @@ func (h *CompanyHandler) Create(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} CompanyResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
-// @Router /companies/{id} [get]
+// @Router /api/companies/{id} [get]
 func (h *CompanyHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
@@ -149,7 +149,7 @@ func (h *CompanyHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 // @Param slug path string true "Company Slug"
 // @Success 200 {object} CompanyResponse
 // @Failure 404 {object} ErrorResponse
-// @Router /companies/slug/{slug} [get]
+// @Router /api/companies/slug/{slug} [get]
 func (h *CompanyHandler) GetBySlug(w http.ResponseWriter, r *http.Request) {
 	slug := chi.URLParam(r, "slug")
 
@@ -175,7 +175,7 @@ func (h *CompanyHandler) GetBySlug(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /companies/{id} [put]
+// @Router /api/companies/{id} [put]
 func (h *CompanyHandler) Update(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
@@ -264,7 +264,7 @@ func (h *CompanyHandler) Update(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} map[string]bool
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /companies/{id} [delete]
+// @Router /api/companies/{id} [delete]
 func (h *CompanyHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
@@ -292,7 +292,7 @@ func (h *CompanyHandler) Delete(w http.ResponseWriter, r *http.Request) {
 // @Param referred_by_user_id query int false "Filter by referred by user ID"
 // @Success 200 {object} CompaniesResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /companies [get]
+// @Router /api/companies [get]
 func (h *CompanyHandler) List(w http.ResponseWriter, r *http.Request) {
 	limitStr := r.URL.Query().Get("limit")
 	offsetStr := r.URL.Query().Get("offset")
@@ -347,7 +347,7 @@ func (h *CompanyHandler) List(w http.ResponseWriter, r *http.Request) {
 // @Param referred_by_user_id query int false "Filter by referred by user ID"
 // @Success 200 {object} CompaniesResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /companies/all [get]
+// @Router /api/companies/all [get]
 func (h *CompanyHandler) FindAll(w http.ResponseWriter, r *http.Request) {
 	referredByStr := r.URL.Query().Get("referred_by_user_id")
 
@@ -375,4 +375,3 @@ func (h *CompanyHandler) FindAll(w http.ResponseWriter, r *http.Request) {
 		Total:     len(companies),
 	})
 }
-

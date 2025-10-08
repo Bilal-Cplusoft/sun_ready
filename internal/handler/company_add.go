@@ -26,7 +26,7 @@ type AddCompanyRequest struct {
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /companies/add [post]
+// @Router /api/companies/add [post]
 func (h *CompanyHandler) AddCompany(w http.ResponseWriter, r *http.Request) {
 	var req AddCompanyRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

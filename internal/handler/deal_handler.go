@@ -86,7 +86,7 @@ type DealsResponse struct {
 // @Success 201 {object} DealResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /deals [post]
+// @Router /api/deals [post]
 func (h *DealHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var req CreateDealRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -136,7 +136,7 @@ func (h *DealHandler) Create(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} DealResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
-// @Router /deals/{id} [get]
+// @Router /api/deals/{id} [get]
 func (h *DealHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
@@ -163,7 +163,7 @@ func (h *DealHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 // @Param uuid path string true "Deal UUID"
 // @Success 200 {object} DealResponse
 // @Failure 404 {object} ErrorResponse
-// @Router /deals/uuid/{uuid} [get]
+// @Router /api/deals/uuid/{uuid} [get]
 func (h *DealHandler) GetByUUID(w http.ResponseWriter, r *http.Request) {
 	uuid := chi.URLParam(r, "uuid")
 
@@ -189,7 +189,7 @@ func (h *DealHandler) GetByUUID(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /deals/{id} [put]
+// @Router /api/deals/{id} [put]
 func (h *DealHandler) Update(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
@@ -284,7 +284,7 @@ func (h *DealHandler) Update(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} map[string]bool
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /deals/{id} [delete]
+// @Router /api/deals/{id} [delete]
 func (h *DealHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
@@ -311,7 +311,7 @@ func (h *DealHandler) Delete(w http.ResponseWriter, r *http.Request) {
 // @Param offset query int false "Offset" default(0)
 // @Success 200 {object} DealsResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /deals [get]
+// @Router /api/deals/ [get]
 func (h *DealHandler) List(w http.ResponseWriter, r *http.Request) {
 	limitStr := r.URL.Query().Get("limit")
 	offsetStr := r.URL.Query().Get("offset")
@@ -355,7 +355,7 @@ func (h *DealHandler) List(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} DealsResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /deals/company/{company_id} [get]
+// @Router /api/deals/company/{company_id} [get]
 func (h *DealHandler) ListByCompany(w http.ResponseWriter, r *http.Request) {
 	companyIDStr := chi.URLParam(r, "company_id")
 	companyID, err := strconv.Atoi(companyIDStr)
@@ -406,7 +406,7 @@ func (h *DealHandler) ListByCompany(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} DealsResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /deals/company/{company_id}/signed [get]
+// @Router /api/deals/company/{company_id}/signed [get]
 func (h *DealHandler) ListSigned(w http.ResponseWriter, r *http.Request) {
 	companyIDStr := chi.URLParam(r, "company_id")
 	companyID, err := strconv.Atoi(companyIDStr)
@@ -455,7 +455,7 @@ func (h *DealHandler) ListSigned(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} map[string]bool
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /deals/{id}/archive [post]
+// @Router /api/deals/{id}/archive [post]
 func (h *DealHandler) Archive(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
@@ -482,7 +482,7 @@ func (h *DealHandler) Archive(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} map[string]bool
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /deals/{id}/unarchive [post]
+// @Router /api/deals/{id}/unarchive [post]
 func (h *DealHandler) Unarchive(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)

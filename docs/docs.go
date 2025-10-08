@@ -15,162 +15,15 @@ const docTemplate = `{
             "email": "support@sunready.com"
         },
         "license": {
-            "name": "MIT",
-            "url": "https://opensource.org/licenses/MIT"
+            "name": "Sun Ready Private License",
+            "url": "INTERNAL"
         },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/projects/3d": {
-            "post": {
-                "description": "Creates a 3D model from Google Earth data and calculates energy requirements and costs",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "projects"
-                ],
-                "summary": "Create a 3D solar project with energy calculations",
-                "parameters": [
-                    {
-                        "description": "Project details",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handler.Create3DProjectRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/handler.Create3DProjectResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/projects/3d/{id}": {
-            "get": {
-                "description": "Retrieves the status and details of a 3D solar project",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "projects"
-                ],
-                "summary": "Get 3D project status",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Project ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "House ID",
-                        "name": "house_id",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Response structure from LightFusion API",
-                        "schema": {
-                            "$ref": "#/definitions/client.Status3DProjectResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/projects/3d/{id}/files": {
-            "get": {
-                "description": "Downloads and retrieves 3D mesh files (JPG, OBJ, PLY, MTL) for a project",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "projects"
-                ],
-                "summary": "Get 3D project mesh files",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Project ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "3D mesh files response",
-                        "schema": {
-                            "$ref": "#/definitions/client.ProfilesFiles3DResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/login": {
+        "/api/auth/login": {
             "post": {
                 "description": "Authenticate user and return JWT token",
                 "consumes": [
@@ -216,7 +69,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/register": {
+        "/api/auth/register": {
             "post": {
                 "description": "Register a new user with email and password",
                 "consumes": [
@@ -262,7 +115,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/companies": {
+        "/api/companies": {
             "get": {
                 "security": [
                     {
@@ -364,7 +217,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/companies/add": {
+        "/api/companies/add": {
             "post": {
                 "security": [
                     {
@@ -421,7 +274,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/companies/all": {
+        "/api/companies/all": {
             "get": {
                 "security": [
                     {
@@ -460,7 +313,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/companies/slug/{slug}": {
+        "/api/companies/slug/{slug}": {
             "get": {
                 "security": [
                     {
@@ -500,7 +353,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/companies/{id}": {
+        "/api/companies/{id}": {
             "get": {
                 "security": [
                     {
@@ -655,52 +508,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/deals": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Get a list of all deals with pagination",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "deals"
-                ],
-                "summary": "List all deals",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "default": 10,
-                        "description": "Limit",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 0,
-                        "description": "Offset",
-                        "name": "offset",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handler.DealsResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
-            },
+        "/api/deals": {
             "post": {
                 "security": [
                     {
@@ -751,7 +559,54 @@ const docTemplate = `{
                 }
             }
         },
-        "/deals/company/{company_id}": {
+        "/api/deals/": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a list of all deals with pagination",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "deals"
+                ],
+                "summary": "List all deals",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Offset",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.DealsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/deals/company/{company_id}": {
             "get": {
                 "security": [
                     {
@@ -811,7 +666,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/deals/company/{company_id}/signed": {
+        "/api/deals/company/{company_id}/signed": {
             "get": {
                 "security": [
                     {
@@ -871,7 +726,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/deals/uuid/{uuid}": {
+        "/api/deals/uuid/{uuid}": {
             "get": {
                 "security": [
                     {
@@ -911,7 +766,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/deals/{id}": {
+        "/api/deals/{id}": {
             "get": {
                 "security": [
                     {
@@ -1066,7 +921,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/deals/{id}/archive": {
+        "/api/deals/{id}/archive": {
             "post": {
                 "security": [
                     {
@@ -1115,7 +970,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/deals/{id}/unarchive": {
+        "/api/deals/{id}/unarchive": {
             "post": {
                 "security": [
                     {
@@ -1164,7 +1019,154 @@ const docTemplate = `{
                 }
             }
         },
-        "/quote": {
+        "/api/projects/3d": {
+            "post": {
+                "description": "Creates a 3D model from Google Earth data and calculates energy requirements and costs",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "projects"
+                ],
+                "summary": "Create a 3D solar project with energy calculations",
+                "parameters": [
+                    {
+                        "description": "Project details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.Create3DProjectRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Create3DProjectResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/projects/3d/{id}": {
+            "get": {
+                "description": "Retrieves the status and details of a 3D solar project",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "projects"
+                ],
+                "summary": "Get 3D project status",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "House ID",
+                        "name": "house_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response structure from LightFusion API",
+                        "schema": {
+                            "$ref": "#/definitions/client.Status3DProjectResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/projects/3d/{id}/files": {
+            "get": {
+                "description": "Downloads and retrieves 3D mesh files (JPG, OBJ, PLY, MTL) for a project",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "projects"
+                ],
+                "summary": "Get 3D project mesh files",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "3D mesh files response",
+                        "schema": {
+                            "$ref": "#/definitions/client.ProfilesFiles3DResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/quote": {
             "post": {
                 "description": "Takes input parameters for a solar system and returns a detailed quote with costs, savings, and payback period.",
                 "consumes": [
@@ -2682,7 +2684,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8080",
-	BasePath:         "/api",
+	BasePath:         "",
 	Schemes:          []string{},
 	Title:            "Sun Ready API",
 	Description:      "API for Sun Ready project management system",

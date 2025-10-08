@@ -127,23 +127,24 @@ func (s *QuoteService) CalculateQuote(input QuoteInput) (*QuoteResult, error) {
 	// Calculate savings
 	monthlySavingsFromSolar := input.MonthlyElectricBill - newMonthlyBill
 	netMonthlySavings := monthlySavingsFromSolar - monthlyPayment
-	firstYearSavings := annualSolarSavings - (monthlyPayment * 12)
+	annualSavingsFromReducedBill := (input.MonthlyElectricBill - newMonthlyBill) * 12
+    firstYearSavings := annualSavingsFromReducedBill - (monthlyPayment * 12)
 
 	// Calculate 25-year savings with utility rate increase
 	twentyFiveYearSavings := 0.0
 	totalUtilityCostWithoutSolar := 0.0
-	totalCostWithSolar := monthlyPayment * 12 * float64(loanTermYears)
+	totalCostWithSolar := 0.0
 
 	for year := 1; year <= 25; year++ {
-		yearlyBill := annualCurrentBill * math.Pow(1+annualIncrease, float64(year-1))
-		totalUtilityCostWithoutSolar += yearlyBill
-
-		if year <= loanTermYears {
-			totalCostWithSolar += newMonthlyBill * 12 * math.Pow(1+annualIncrease, float64(year-1))
-		} else {
-			totalCostWithSolar += newMonthlyBill * 12 * math.Pow(1+annualIncrease, float64(year-1))
-		}
-	}
+      yearlyBill := annualCurrentBill * math.Pow(1+annualIncrease, float64(year-1))
+      totalUtilityCostWithoutSolar += yearlyBill
+      yearlyNewBill := newMonthlyBill * 12 * math.Pow(1+annualIncrease, float64(year-1))
+      if year <= loanTermYears {
+          totalCostWithSolar += (monthlyPayment * 12) + yearlyNewBill
+      } else {
+          totalCostWithSolar += yearlyNewBill
+      }
+    }
 
 	twentyFiveYearSavings = totalUtilityCostWithoutSolar - totalCostWithSolar
 
@@ -183,6 +184,7 @@ func (s *QuoteService) CalculateQuote(input QuoteInput) (*QuoteResult, error) {
 		firstYearSavings,
 		twentyFiveYearSavings,
 	)
+	fmt.Printf("\n\n testing: %v\n\n",summary)
 
 	return &QuoteResult{
 		SystemCostBeforeIncentives: math.Round(systemCostBeforeIncentives*100) / 100,

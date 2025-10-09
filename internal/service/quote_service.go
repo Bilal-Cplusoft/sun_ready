@@ -184,8 +184,6 @@ func (s *QuoteService) CalculateQuote(input QuoteInput) (*QuoteResult, error) {
 		firstYearSavings,
 		twentyFiveYearSavings,
 	)
-	fmt.Printf("\n\n testing: %v\n\n",summary)
-
 	return &QuoteResult{
 		SystemCostBeforeIncentives: math.Round(systemCostBeforeIncentives*100) / 100,
 		FederalTaxCredit:           math.Round(federalTaxCreditAmount*100) / 100,

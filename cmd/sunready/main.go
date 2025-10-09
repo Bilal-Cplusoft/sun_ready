@@ -80,6 +80,7 @@ func main() {
 	projectRepo := repo.NewProjectRepo(db)
 	dealRepo := repo.NewDealRepo(db)
 	quoteRepo := repo.NewQuoteRepo(db)
+	leadRepo := repo.NewLeadRepo(db)
 
 	lightFusionClient := client.NewLightFusionClient(lightFusionURL, lightFusionAPIKey)
 	log.Printf("LightFUSION API integration enabled: %s", lightFusionURL)
@@ -108,9 +109,10 @@ func main() {
 	userHandler := handler.NewUserHandler(userService)
 	companyHandler := handler.NewCompanyHandler(companyService, userService)
 	projectHandler := handler.NewProjectHandler(projectService)
-	project3DHandler := handler.NewProject3DHandler(lightFusionClient)
+	project3DHandler := handler.NewProject3DHandler(lightFusionClient, leadRepo)
 	dealHandler := handler.NewDealHandler(dealService)
 	quoteHandler := handler.NewQuoteHandler(quoteService)
+	leadHandler := handler.NewLeadHandler(leadRepo, lightFusionClient)
 
 	r := chi.NewRouter()
 
@@ -165,6 +167,14 @@ func main() {
 	r.Get("/api/projects/3d/{id}/files", project3DHandler.GetProjectFiles3D)
 
 	r.Post("/api/quote", quoteHandler.GetQuote)
+
+	// Lead routes
+	r.Post("/api/leads", leadHandler.CreateLead)
+	r.Get("/api/leads", leadHandler.ListLeads)
+	r.Get("/api/leads/{id}", leadHandler.GetLead)
+	r.Put("/api/leads/{id}", leadHandler.UpdateLead)
+	r.Delete("/api/leads/{id}", leadHandler.DeleteLead)
+	r.Post("/api/leads/{id}/sync-3d-status", leadHandler.SyncLead3DStatus)
 
 	fileServer := http.StripPrefix("/media/", http.FileServer(http.Dir("./media")))
 	r.Handle("/media/*", fileServer)

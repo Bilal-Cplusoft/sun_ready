@@ -9,21 +9,26 @@ import (
 	"strings"
 
 	"github.com/Bilal-Cplusoft/sun_ready/internal/client"
+	"github.com/Bilal-Cplusoft/sun_ready/internal/models"
+	"github.com/Bilal-Cplusoft/sun_ready/internal/repo"
 )
 
 type Project3DHandler struct {
 	lightFusionClient *client.LightFusionClient
+	leadRepo          *repo.LeadRepo
 }
 
-func NewProject3DHandler(lightFusionClient *client.LightFusionClient) *Project3DHandler {
+func NewProject3DHandler(lightFusionClient *client.LightFusionClient, leadRepo *repo.LeadRepo) *Project3DHandler {
 	return &Project3DHandler{
 		lightFusionClient: lightFusionClient,
+		leadRepo:          leadRepo,
 	}
 }
 
 // Create3DProjectRequest represents the API request for creating a 3D project
 // @Description Request body for creating a 3D solar project with energy calculations
 type Create3DProjectRequest struct {
+	LeadID            *int             `json:"lead_id,omitempty" example:"123"`  // Optional: Link to existing lead
 	Latitude          float64          `json:"latitude" example:"37.7749"`
 	Longitude         float64          `json:"longitude" example:"-122.4194"`
 	Address           AddressRequest   `json:"address"`
@@ -35,6 +40,8 @@ type Create3DProjectRequest struct {
 	TargetSolarOffset int              `json:"target_solar_offset" example:"100"`
 	Mode              *string          `json:"mode,omitempty" example:"max"`
 	Unit              string           `json:"unit" example:"kwh"`
+	CompanyID         int              `json:"company_id" example:"1"`  // Required for creating new lead
+	CreatorID         int              `json:"creator_id" example:"1"`  // Required for creating new lead
 }
 
 type AddressRequest struct {
@@ -138,6 +145,40 @@ func (h *Project3DHandler) Create3DProject(w http.ResponseWriter, r *http.Reques
 	}
 	fmt.Printf("\n\n Response: %v\n", resp)
 
+	// Sync with local lead if lead_id was provided or create new lead
+	var lead *models.Lead
+	if req.LeadID != nil {
+		// Update existing lead with 3D project info
+		lead, err = h.leadRepo.GetByID(r.Context(), *req.LeadID)
+		if err != nil {
+			log.Printf("Warning: Could not find lead with ID %d to update: %v", *req.LeadID, err)
+		} else {
+			lead.SetLightFusion3DProject(resp.ID, resp.LeadID)
+			if err := h.leadRepo.Update(r.Context(), lead); err != nil {
+				log.Printf("Warning: Failed to update lead with 3D project info: %v", err)
+			}
+		}
+	} else {
+		// Create new lead with 3D project info
+		lead = &models.Lead{
+			CompanyID:        req.CompanyID,
+			CreatorID:        req.CreatorID,
+			Latitude:         req.Latitude,
+			Longitude:        req.Longitude,
+			Address:          fmt.Sprintf("%s, %s, %s %s", req.Address.Street, req.Address.City, req.Address.State, req.Address.PostalCode),
+			State:            int(models.LeadStateInitialized),
+			Source:           int(models.LeadSourceEarth),
+			ExternalLeadID:   &resp.LeadID,
+			SystemSize:       resp.SystemSize,
+			AnnualProduction: resp.AnnualProduction,
+		}
+		lead.SetLightFusion3DProject(resp.ID, resp.LeadID)
+		
+		if err := h.leadRepo.Create(r.Context(), lead); err != nil {
+			log.Printf("Warning: Failed to create lead with 3D project info: %v", err)
+		}
+	}
+
 	response := Create3DProjectResponse{
 		ID:               resp.ID,
 		LeadID:           resp.LeadID,
@@ -216,6 +257,35 @@ func (h *Project3DHandler) GetProjectStatus(w http.ResponseWriter, r *http.Reque
 	}
 
 	log.Printf("Successfully retrieved project status for ID %d", projectID)
+
+	// Try to update lead status if we have the lead completion data
+	if resp.LeadCompletion != nil {
+		leadData := resp.LeadCompletion.Lead
+		// Find lead by external ID or LightFusion project ID
+		lead, err := h.leadRepo.GetByExternalID(r.Context(), leadData.ID)
+		if err == nil && lead != nil {
+			// Update lead with latest status
+			if leadData.State == 1 { // Done state
+				lead.Update3DModelStatus("completed")
+			} else if leadData.State == 2 { // Errored state
+				lead.Update3DModelStatus("failed")
+			} else {
+				lead.Update3DModelStatus("processing")
+			}
+			
+			// Update other lead fields if available
+			if leadData.House.SystemSize > 0 {
+				lead.SystemSize = float64(leadData.House.SystemSize)
+			}
+			if leadData.Production.Annual > 0 {
+				lead.AnnualProduction = leadData.Production.Annual
+			}
+			
+			if err := h.leadRepo.Update(r.Context(), lead); err != nil {
+				log.Printf("Warning: Failed to update lead with status: %v", err)
+			}
+		}
+	}
 
 	respondWithJSON(w, http.StatusOK, resp)
 }

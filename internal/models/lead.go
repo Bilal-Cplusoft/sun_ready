@@ -95,6 +95,13 @@ PtoState               *int `json:"pto_state" gorm:"column:pto_state" example:"0
 InstallationDate *string `json:"installation_date" gorm:"column:installation_date" example:"2025-10-15"`
 DateNtp          *string `json:"date_ntp" gorm:"column:date_ntp" example:"2025-10-10"`
 DateInstalled    *string `json:"date_installed" gorm:"column:date_installed" example:"2025-10-15"`
+
+// LightFusion 3D Project Integration
+LightFusion3DProjectID *int    `json:"lightfusion_3d_project_id" gorm:"column:lightfusion_3d_project_id" example:"123"`
+LightFusion3DHouseID   *int    `json:"lightfusion_3d_house_id" gorm:"column:lightfusion_3d_house_id" example:"456"`
+Model3DStatus          *string `json:"model_3d_status" gorm:"column:model_3d_status" example:"processing"`
+Model3DCreatedAt       *time.Time `json:"model_3d_created_at" gorm:"column:model_3d_created_at"`
+Model3DCompletedAt     *time.Time `json:"model_3d_completed_at" gorm:"column:model_3d_completed_at"`
 }
 
 func (Lead) TableName() string {
@@ -123,4 +130,33 @@ l.LastSyncedAt = &now
 // MarkSyncFailed marks the lead sync as failed
 func (l *Lead) MarkSyncFailed() {
 l.SyncStatus = "failed"
+}
+
+// Has3DModel checks if the lead has an associated 3D model from LightFusion
+func (l *Lead) Has3DModel() bool {
+	return l.LightFusion3DProjectID != nil && l.LightFusion3DHouseID != nil
+}
+
+// SetLightFusion3DProject sets the LightFusion 3D project references
+func (l *Lead) SetLightFusion3DProject(projectID, houseID int) {
+	l.LightFusion3DProjectID = &projectID
+	l.LightFusion3DHouseID = &houseID
+	status := "processing"
+	l.Model3DStatus = &status
+	now := time.Now()
+	l.Model3DCreatedAt = &now
+}
+
+// Update3DModelStatus updates the status of the 3D model from LightFusion
+func (l *Lead) Update3DModelStatus(status string) {
+	l.Model3DStatus = &status
+	if status == "completed" || status == "done" {
+		now := time.Now()
+		l.Model3DCompletedAt = &now
+	}
+}
+
+// Is3DModelReady checks if the 3D model is ready for viewing
+func (l *Lead) Is3DModelReady() bool {
+	return l.Model3DStatus != nil && (*l.Model3DStatus == "completed" || *l.Model3DStatus == "done")
 }

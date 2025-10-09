@@ -427,6 +427,10 @@ definitions:
     properties:
       address:
         $ref: '#/definitions/handler.AddressRequest'
+      company_id:
+        description: Required for creating new lead
+        example: 1
+        type: integer
       consumption:
         example:
         - 800
@@ -444,6 +448,10 @@ definitions:
         items:
           type: integer
         type: array
+      creator_id:
+        description: Required for creating new lead
+        example: 1
+        type: integer
       hardware:
         $ref: '#/definitions/handler.HardwareRequest'
       homeowner:
@@ -451,6 +459,10 @@ definitions:
       latitude:
         example: 37.7749
         type: number
+      lead_id:
+        description: 'Optional: Link to existing lead'
+        example: 123
+        type: integer
       longitude:
         example: -122.4194
         type: number
@@ -587,6 +599,42 @@ definitions:
         example: 25000
         type: number
     type: object
+  handler.CreateLeadRequest:
+    properties:
+      address:
+        example: 123 Solar St, San Francisco, CA 94102
+        type: string
+      company_id:
+        example: 1
+        type: integer
+      create_3d_model:
+        example: false
+        type: boolean
+      creator_id:
+        example: 1
+        type: integer
+      kwh_usage:
+        example: 12000
+        type: number
+      latitude:
+        example: 37.7749
+        type: number
+      longitude:
+        example: -122.4194
+        type: number
+      panel_count:
+        example: 30
+        type: integer
+      promo_code:
+        example: SOLAR2025
+        type: string
+      source:
+        example: 2
+        type: integer
+      system_size:
+        example: 10.5
+        type: number
+    type: object
   handler.DealResponse:
     properties:
       deal:
@@ -635,6 +683,72 @@ definitions:
         type: string
       phone:
         example: "+1234567890"
+        type: string
+    type: object
+  handler.LeadResponse:
+    properties:
+      address:
+        example: 123 Solar St, San Francisco, CA 94102
+        type: string
+      annual_production:
+        example: 13000
+        type: number
+      company_id:
+        example: 1
+        type: integer
+      created_at:
+        example: "2024-01-15T10:30:00Z"
+        type: string
+      creator_id:
+        example: 1
+        type: integer
+      external_lead_id:
+        example: 12345
+        type: integer
+      has_3d_model:
+        example: true
+        type: boolean
+      id:
+        example: 1
+        type: integer
+      kwh_usage:
+        example: 12000
+        type: number
+      latitude:
+        example: 37.7749
+        type: number
+      lightfusion_3d_house_id:
+        example: 456
+        type: integer
+      lightfusion_3d_project_id:
+        example: 123
+        type: integer
+      longitude:
+        example: -122.4194
+        type: number
+      model_3d_status:
+        example: completed
+        type: string
+      panel_count:
+        example: 30
+        type: integer
+      promo_code:
+        example: SOLAR2025
+        type: string
+      source:
+        example: 2
+        type: integer
+      state:
+        example: 0
+        type: integer
+      sync_status:
+        example: synced
+        type: string
+      system_size:
+        example: 10.5
+        type: number
+      updated_at:
+        example: "2024-01-15T10:30:00Z"
         type: string
     type: object
   handler.LoginRequest:
@@ -1658,6 +1772,181 @@ paths:
       summary: Get deal by UUID
       tags:
       - deals
+  /api/leads:
+    get:
+      description: Retrieves a paginated list of leads
+      parameters:
+      - description: Filter by company ID
+        in: query
+        name: company_id
+        type: integer
+      - description: Filter by creator ID
+        in: query
+        name: creator_id
+        type: integer
+      - description: Filter leads with 3D models
+        in: query
+        name: has_3d_model
+        type: boolean
+      - default: 20
+        description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Number of items to skip
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List leads
+      tags:
+      - leads
+    post:
+      consumes:
+      - application/json
+      description: Creates a new lead and optionally initiates 3D model generation
+      parameters:
+      - description: Lead details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateLeadRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.LeadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Create a new lead
+      tags:
+      - leads
+  /api/leads/{id}:
+    delete:
+      description: Deletes a lead by ID
+      parameters:
+      - description: Lead ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Delete a lead
+      tags:
+      - leads
+    get:
+      description: Retrieves a lead by its ID
+      parameters:
+      - description: Lead ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.LeadResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Get a lead by ID
+      tags:
+      - leads
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing lead
+      parameters:
+      - description: Lead ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Lead updates
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.LeadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Update a lead
+      tags:
+      - leads
+  /api/leads/{id}/sync-3d-status:
+    post:
+      description: Updates the 3D model status from LightFusion API
+      parameters:
+      - description: Lead ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.LeadResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Sync 3D model status for a lead
+      tags:
+      - leads
   /api/projects/3d:
     post:
       consumes:

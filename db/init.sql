@@ -33,6 +33,8 @@ CREATE TABLE IF NOT EXISTS users (
     lastname VARCHAR(200),
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(100),
+    phone_number VARCHAR(50),
+    last_login TIMESTAMPTZ
     type SMALLINT NOT NULL,
     company_id INTEGER NOT NULL REFERENCES companies(id) ON DELETE NO ACTION,
     creator_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -59,36 +61,36 @@ CREATE TABLE IF NOT EXISTS leads (
     id SERIAL PRIMARY KEY,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    
+
     -- External sync fields
     external_lead_id INTEGER UNIQUE,
     sync_status VARCHAR(50) NOT NULL DEFAULT 'pending',
     last_synced_at TIMESTAMPTZ,
-    
+
     -- Core lead information
     state INTEGER NOT NULL DEFAULT 0,
     company_id INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     creator_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    
+
     -- Location data
     latitude DECIMAL(10, 8) NOT NULL,
     longitude DECIMAL(11, 8) NOT NULL,
     address TEXT,
-    
+
     -- Source and metadata
     source INTEGER NOT NULL DEFAULT 0,
     promo_code VARCHAR(100),
     is_2d BOOLEAN NOT NULL DEFAULT false,
-    
+
     -- Energy consumption details
     kwh_usage DECIMAL(10, 2),
     kwh_per_kw_manual INTEGER,
-    
+
     -- Financial information
     electricity_cost_pre INTEGER,
     electricity_cost_post INTEGER,
     additional_incentive INTEGER,
-    
+
     -- System specifications
     system_size DECIMAL(10, 2),
     panel_count INTEGER,
@@ -96,18 +98,18 @@ CREATE TABLE IF NOT EXISTS leads (
     inverter_id INTEGER,
     inverter_count INTEGER DEFAULT 1,
     battery_count INTEGER DEFAULT 0,
-    
+
     -- Utility information
     utility_id INTEGER,
     tariff_id INTEGER,
-    
+
     -- Roof details
     roof_material INTEGER,
     surface_id INTEGER,
-    
+
     -- Production metrics
     annual_production DECIMAL(12, 2),
-    
+
     -- Workflow states
     welcome_call_state INTEGER,
     financing_state INTEGER,
@@ -119,19 +121,19 @@ CREATE TABLE IF NOT EXISTS leads (
     installation_state INTEGER,
     final_inspection_state INTEGER,
     pto_state INTEGER,
-    
+
     -- Important dates
     installation_date DATE,
     date_ntp DATE,
     date_installed DATE,
-    
+
     -- LightFusion 3D Project Integration
     lightfusion_3d_project_id INTEGER,
     lightfusion_3d_house_id INTEGER,
     model_3d_status VARCHAR(50),
     model_3d_created_at TIMESTAMPTZ,
     model_3d_completed_at TIMESTAMPTZ,
-    
+
     -- Constraints
     CONSTRAINT chk_latitude CHECK (latitude >= -90 AND latitude <= 90),
     CONSTRAINT chk_longitude CHECK (longitude >= -180 AND longitude <= 180),

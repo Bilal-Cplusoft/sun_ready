@@ -188,7 +188,7 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{
 			"status": "ready",
-			"project_name": "sun_ready",
+			"project_name": "test",
 			"version": "v1.0.0"
 		}`))
 	})

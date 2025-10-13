@@ -16,29 +16,42 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - sunready-network
+    restart: unless-stopped
 
-  # api:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   container_name: sunready-api
-  #   environment:
-  #     DATABASE_URL: postgres://sunready:sunready@postgres-sunready:5432/sunready?sslmode=disable
-  #     JWT_SECRET: sunready
-  #     PORT: 8080
-  #     ENV: development
-  #     LIGHTFUSION_API: http://localhost:8085
-  #     LIGHTFUSION_EMAIL: your-lightfusion-email@example.com
-  #     LIGHTFUSION_PASSWORD: your-lightfusion-password
+  api:
+    build:
+      context: .
+      dockerfile: build/Dockerfile.sunready
+    container_name: sunready-api
+    environment:
+      DATABASE_URL: ""
+      JWT_SECRET: ""
+      PORT: "8080"
+      ENV: "production"
+      LIGHTFUSION_API: "http://localhost:8085"
+      LIGHTFUSION_EMAIL: ""
+      LIGHTFUSION_PASSWORD: ""
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres-sunready:
+        condition: service_healthy
+    networks:
+      - sunready-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
-  #   ports:
-  #     - "8080:8080"
-  #   volumes:
-  #     - .:/app
-  #   depends_on:
-  #     postgres-sunready:
-  #       condition: service_healthy
-  #   restart: unless-stopped
+networks:
+  sunready-network:
+    driver: bridge
 
 volumes:
   postgres_data:
+    driver: local

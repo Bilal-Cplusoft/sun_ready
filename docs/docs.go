@@ -1282,6 +1282,110 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/otp/send": {
+            "get": {
+                "description": "Sends a one-time password (OTP) via SMS to the specified phone number using Twilio.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OTP"
+                ],
+                "summary": "Send OTP to a phone number",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Phone number with country code (e.g. +923001234567)",
+                        "name": "phone",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OTP sent successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Missing or invalid phone parameter",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to send OTP",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/otp/verify": {
+            "get": {
+                "description": "Verifies a one-time password (OTP) sent to a phone number.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OTP"
+                ],
+                "summary": "Verify an OTP code",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Phone number with country code (e.g. +923001234567)",
+                        "name": "phone",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "OTP code received via SMS",
+                        "name": "otp",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OTP verified successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Missing or invalid parameters / OTP verification failed",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/projects/3d": {
             "post": {
                 "description": "Creates a 3D model from Google Earth data and calculates energy requirements and costs",
@@ -2590,6 +2694,10 @@ const docTemplate = `{
         "handler.RegisterRequest": {
             "type": "object",
             "properties": {
+                "address": {
+                    "type": "string",
+                    "example": "123 Main St, Anytown, USA"
+                },
                 "company_id": {
                     "type": "integer",
                     "example": 1
@@ -2609,6 +2717,10 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "example": "password123"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "555-123-4567"
                 }
             }
         },

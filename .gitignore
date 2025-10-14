@@ -8,6 +8,10 @@
 bin/
 dist/
 
+# Project-specific binaries
+main
+sunready
+
 # Test binary, built with `go test -c`
 *.test
 

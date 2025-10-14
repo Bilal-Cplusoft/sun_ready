@@ -173,7 +173,7 @@ func (h *Project3DHandler) Create3DProject(w http.ResponseWriter, r *http.Reques
 			AnnualProduction: resp.AnnualProduction,
 		}
 		lead.SetLightFusion3DProject(resp.ID, resp.LeadID)
-		
+
 		if err := h.leadRepo.Create(r.Context(), lead); err != nil {
 			log.Printf("Warning: Failed to create lead with 3D project info: %v", err)
 		}
@@ -261,26 +261,22 @@ func (h *Project3DHandler) GetProjectStatus(w http.ResponseWriter, r *http.Reque
 	// Try to update lead status if we have the lead completion data
 	if resp.LeadCompletion != nil {
 		leadData := resp.LeadCompletion.Lead
-		// Find lead by external ID or LightFusion project ID
 		lead, err := h.leadRepo.GetByExternalID(r.Context(), leadData.ID)
 		if err == nil && lead != nil {
-			// Update lead with latest status
-			if leadData.State == 1 { // Done state
+			if leadData.State == 1 {
 				lead.Update3DModelStatus("completed")
-			} else if leadData.State == 2 { // Errored state
+			} else if leadData.State == 2 {
 				lead.Update3DModelStatus("failed")
 			} else {
 				lead.Update3DModelStatus("processing")
 			}
-			
-			// Update other lead fields if available
 			if leadData.House.SystemSize > 0 {
 				lead.SystemSize = float64(leadData.House.SystemSize)
 			}
 			if leadData.Production.Annual > 0 {
 				lead.AnnualProduction = leadData.Production.Annual
 			}
-			
+
 			if err := h.leadRepo.Update(r.Context(), lead); err != nil {
 				log.Printf("Warning: Failed to update lead with status: %v", err)
 			}

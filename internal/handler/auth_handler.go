@@ -5,14 +5,16 @@ import (
 	"net/http"
 
 	"github.com/Bilal-Cplusoft/sun_ready/internal/service"
+	"github.com/Bilal-Cplusoft/sun_ready/internal/client"
 )
 
 type AuthHandler struct {
 	authService *service.AuthService
+	sendGridClient *client.SendGridClient
 }
 
-func NewAuthHandler(authService *service.AuthService) *AuthHandler {
-	return &AuthHandler{authService: authService}
+func NewAuthHandler(authService *service.AuthService,sendGridClient *client.SendGridClient) *AuthHandler {
+	return &AuthHandler{authService: authService, sendGridClient: sendGridClient}
 }
 
 type RegisterRequest struct {
@@ -21,6 +23,8 @@ type RegisterRequest struct {
 	FirstName string `json:"first_name" example:"John"`
 	LastName  string `json:"last_name" example:"Doe"`
 	CompanyID int    `json:"company_id" example:"1"`
+	Address   string `json:"address" example:"123 Main St, Anytown, USA"`
+	Phone     string `json:"phone" example:"555-123-4567"`
 }
 
 type LoginRequest struct {
@@ -30,7 +34,7 @@ type LoginRequest struct {
 
 type AuthResponse struct {
 	Token string      `json:"token" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
-	User  interface{} `json:"user"`
+	User  any `json:"user"`
 }
 
 // Register godoc
@@ -50,8 +54,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}
-
-	user, err := h.authService.Register(r.Context(), req.Email, req.Password, req.FirstName, req.LastName, req.CompanyID)
+	user, err := h.authService.Register(r.Context(), req.Email, req.Password, req.FirstName, req.LastName, req.CompanyID,req.Address,req.Phone)
 	if err != nil {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
@@ -62,7 +65,11 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, "Failed to generate token")
 		return
 	}
-
+	err = h.sendGridClient.SendWelcomeEmail(req.Email,req.FirstName)
+	if err != nil {
+		respondError(w, http.StatusConflict, "Error sending welcome email")
+		return
+	}
 	respondJSON(w, http.StatusCreated, AuthResponse{Token: token, User: user})
 }
 

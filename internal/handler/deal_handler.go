@@ -20,7 +20,7 @@ func NewDealHandler(dealService *service.DealService) *DealHandler {
 	return &DealHandler{dealService: dealService}
 }
 
-// CreateDealRequest represents the request body for creating a deal
+
 type CreateDealRequest struct {
 	ProjectID           int     `json:"project_id" example:"1"`
 	SystemSize          float64 `json:"system_size" example:"10.5"`
@@ -42,7 +42,7 @@ type CreateDealRequest struct {
 	ProductionKWH       int     `json:"production_kwh,omitempty" example:"13000"`
 }
 
-// UpdateDealRequest represents the request body for updating a deal
+
 type UpdateDealRequest struct {
 	SystemSize          *float64    `json:"system_size,omitempty" example:"10.5"`
 	PanelCount          *int        `json:"panel_count,omitempty" example:"30"`

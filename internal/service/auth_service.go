@@ -29,19 +29,15 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-func (s *AuthService) Register(ctx context.Context, email, password, firstName, lastName string, companyID int) (*models.User, error) {
-	// Check if user exists
+func (s *AuthService) Register(ctx context.Context, email, password, firstName, lastName string, companyID int, address, phoneNumber string) (*models.User, error) {
 	existingUser, _ := s.userRepo.GetByEmail(ctx, email)
 	if existingUser != nil {
 		return nil, errors.New("user already exists")
 	}
-
-	// Hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
 	}
-
 	hashedStr := string(hashedPassword)
 	user := &models.User{
 		Email:     email,
@@ -52,12 +48,12 @@ func (s *AuthService) Register(ctx context.Context, email, password, firstName, 
 		Type:      int16(models.UserTypeSales),
 		Disabled:  false,
 		IsManager: false,
+		Address:   &address,
+		PhoneNumber: &phoneNumber,
 	}
-
 	if err := s.userRepo.Create(ctx, user); err != nil {
 		return nil, err
 	}
-
 	return user, nil
 }
 

@@ -2,4 +2,4 @@ root = "."
 
 [build]
   bin = "main"
-  cmd = "go build -o main ./cmd/sunready"
+  cmd = "go build -buildvcs=false -o main ./cmd/sunready"

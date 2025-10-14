@@ -762,6 +762,9 @@ definitions:
     type: object
   handler.RegisterRequest:
     properties:
+      address:
+        example: 123 Main St, Anytown, USA
+        type: string
       company_id:
         example: 1
         type: integer
@@ -776,6 +779,9 @@ definitions:
         type: string
       password:
         example: password123
+        type: string
+      phone:
+        example: 555-123-4567
         type: string
     type: object
   handler.UpdateCompanyRequest:
@@ -1947,6 +1953,76 @@ paths:
       summary: Sync 3D model status for a lead
       tags:
       - leads
+  /api/otp/send:
+    get:
+      consumes:
+      - application/json
+      description: Sends a one-time password (OTP) via SMS to the specified phone
+        number using Twilio.
+      parameters:
+      - description: Phone number with country code (e.g. +923001234567)
+        in: query
+        name: phone
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OTP sent successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Missing or invalid phone parameter
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to send OTP
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Send OTP to a phone number
+      tags:
+      - OTP
+  /api/otp/verify:
+    get:
+      consumes:
+      - application/json
+      description: Verifies a one-time password (OTP) sent to a phone number.
+      parameters:
+      - description: Phone number with country code (e.g. +923001234567)
+        in: query
+        name: phone
+        required: true
+        type: string
+      - description: OTP code received via SMS
+        in: query
+        name: otp
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OTP verified successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Missing or invalid parameters / OTP verification failed
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Verify an OTP code
+      tags:
+      - OTP
   /api/projects/3d:
     post:
       consumes:

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -46,30 +45,19 @@ func main() {
 		log.Println("No .env file found, using system environment variables")
 	}
 
-	databaseURL := os.Getenv("DATABASE_URL")
+	databaseURL, jwtSecret, port, lightFusionURL, lightFusionAPIKey, lightFusionEmail, lightFusionPassword := os.Getenv("DATABASE_URL"), os.Getenv("JWT_SECRET"), os.Getenv("PORT"), os.Getenv("LIGHTFUSION_API"), os.Getenv("LIGHTFUSION_API_KEY"), os.Getenv("LIGHTFUSION_EMAIL"), os.Getenv("LIGHTFUSION_PASSWORD")
 	if databaseURL == "" {
 		log.Fatal("DATABASE_URL environment variable is required")
 	}
-
-	jwtSecret := os.Getenv("JWT_SECRET")
-	fmt.Printf("JWT_SECRET: %s\n", jwtSecret)
 	if jwtSecret == "" {
 		log.Fatal("JWT_SECRET environment variable is required")
 	}
-
-	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
-
-	lightFusionURL := os.Getenv("LIGHTFUSION_API")
 	if lightFusionURL == "" {
 		lightFusionURL = "http://localhost:8085"
 	}
-	lightFusionAPIKey := os.Getenv("LIGHTFUSION_API_KEY")
-	lightFusionEmail := os.Getenv("LIGHTFUSION_EMAIL")
-	lightFusionPassword := os.Getenv("LIGHTFUSION_PASSWORD")
-
 	db, err := database.New(databaseURL)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
@@ -82,8 +70,7 @@ func main() {
 	quoteRepo := repo.NewQuoteRepo(db)
 	leadRepo := repo.NewLeadRepo(db)
 
-	lightFusionClient := client.NewLightFusionClient(lightFusionURL, lightFusionAPIKey)
-	log.Printf("LightFUSION API integration enabled: %s", lightFusionURL)
+	lightFusionClient,twilioClient,sendGridClient := client.NewLightFusionClient(lightFusionURL, lightFusionAPIKey),client.InitializeTwilio(),client.InitializeSendGrid()
 
 	if lightFusionEmail != "" && lightFusionPassword != "" {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -105,7 +92,7 @@ func main() {
 	dealService := service.NewDealService(dealRepo)
 	quoteService := service.NewQuoteService(quoteRepo)
 
-	authHandler := handler.NewAuthHandler(authService)
+	authHandler := handler.NewAuthHandler(authService,sendGridClient)
 	userHandler := handler.NewUserHandler(userService)
 	companyHandler := handler.NewCompanyHandler(companyService, userService)
 	projectHandler := handler.NewProjectHandler(projectService)
@@ -113,6 +100,7 @@ func main() {
 	dealHandler := handler.NewDealHandler(dealService)
 	quoteHandler := handler.NewQuoteHandler(quoteService)
 	leadHandler := handler.NewLeadHandler(leadRepo, lightFusionClient)
+	otpHandler := handler.NewOtpHandler(twilioClient)
 
 	r := chi.NewRouter()
 
@@ -176,6 +164,9 @@ func main() {
 	r.Delete("/api/leads/{id}", leadHandler.DeleteLead)
 	r.Post("/api/leads/{id}/sync-3d-status", leadHandler.SyncLead3DStatus)
 
+	r.Get("/api/otp/send",otpHandler.SendOTP)
+	r.Get("/api/otp/verify",otpHandler.VerifyOTP)
+
 	fileServer := http.StripPrefix("/media/", http.FileServer(http.Dir("./media")))
 	r.Handle("/media/*", fileServer)
 
@@ -188,7 +179,7 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{
 			"status": "ready",
-			"project_name": "test",
+			"project_name": "SunReady",
 			"version": "v1.0.0"
 		}`))
 	})

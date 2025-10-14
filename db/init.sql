@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(100),
     phone_number VARCHAR(50),
-    last_login TIMESTAMPTZ
+    last_login TIMESTAMPTZ,
     type SMALLINT NOT NULL,
     company_id INTEGER NOT NULL REFERENCES companies(id) ON DELETE NO ACTION,
     creator_id INTEGER REFERENCES users(id) ON DELETE CASCADE,

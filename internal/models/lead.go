@@ -119,7 +119,6 @@ if l.Longitude < -180 || l.Longitude > 180 {
 return nil
 }
 
-// MarkSynced marks the lead as synced with external API
 func (l *Lead) MarkSynced(externalID int) {
 l.ExternalLeadID = &externalID
 l.SyncStatus = "synced"
@@ -127,17 +126,15 @@ now := time.Now()
 l.LastSyncedAt = &now
 }
 
-// MarkSyncFailed marks the lead sync as failed
 func (l *Lead) MarkSyncFailed() {
 l.SyncStatus = "failed"
 }
 
-// Has3DModel checks if the lead has an associated 3D model from LightFusion
+
 func (l *Lead) Has3DModel() bool {
 	return l.LightFusion3DProjectID != nil && l.LightFusion3DHouseID != nil
 }
 
-// SetLightFusion3DProject sets the LightFusion 3D project references
 func (l *Lead) SetLightFusion3DProject(projectID, houseID int) {
 	l.LightFusion3DProjectID = &projectID
 	l.LightFusion3DHouseID = &houseID
@@ -147,7 +144,6 @@ func (l *Lead) SetLightFusion3DProject(projectID, houseID int) {
 	l.Model3DCreatedAt = &now
 }
 
-// Update3DModelStatus updates the status of the 3D model from LightFusion
 func (l *Lead) Update3DModelStatus(status string) {
 	l.Model3DStatus = &status
 	if status == "completed" || status == "done" {
@@ -156,7 +152,6 @@ func (l *Lead) Update3DModelStatus(status string) {
 	}
 }
 
-// Is3DModelReady checks if the 3D model is ready for viewing
 func (l *Lead) Is3DModelReady() bool {
 	return l.Model3DStatus != nil && (*l.Model3DStatus == "completed" || *l.Model3DStatus == "done")
 }

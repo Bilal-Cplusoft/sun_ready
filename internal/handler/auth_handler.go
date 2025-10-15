@@ -3,8 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-
-	"github.com/Bilal-Cplusoft/sun_ready/internal/service"
+   "github.com/Bilal-Cplusoft/sun_ready/internal/service"
 	"github.com/Bilal-Cplusoft/sun_ready/internal/client"
 )
 

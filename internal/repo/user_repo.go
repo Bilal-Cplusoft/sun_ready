@@ -5,7 +5,10 @@ import (
 
 	"github.com/Bilal-Cplusoft/sun_ready/internal/models"
 	"gorm.io/gorm"
+	"errors"
 )
+
+var ErrUnauthorizedCompanyAccess = errors.New("insufficient permission to override company")
 
 type UserRepo struct {
 	db *gorm.DB
@@ -56,18 +59,18 @@ func (r *UserRepo) List(ctx context.Context, companyID int, limit, offset int) (
 	return users, err
 }
 
-// FindByIDs finds users by their IDs
+
 func (r *UserRepo) FindByIDs(ctx context.Context, ids []int) ([]*models.User, error) {
 	var users []*models.User
 	err := r.db.WithContext(ctx).Where("id IN ?", ids).Find(&users).Error
 	return users, err
 }
 
-// GetDescendantIDs gets all descendant user IDs for a given user
+
 func (r *UserRepo) GetDescendantIDs(ctx context.Context, userID int) ([]int, error) {
 	var descendants []int
-	
-	// Recursive CTE to get all descendants
+
+
 	query := `
 		WITH RECURSIVE user_tree AS (
 			SELECT id, creator_id FROM users WHERE creator_id = ?
@@ -77,14 +80,26 @@ func (r *UserRepo) GetDescendantIDs(ctx context.Context, userID int) ([]int, err
 		)
 		SELECT id FROM user_tree
 	`
-	
+
 	err := r.db.WithContext(ctx).Raw(query, userID).Scan(&descendants).Error
 	return descendants, err
 }
 
-// UpdateCompanyID updates the company_id for a user
+
 func (r *UserRepo) UpdateCompanyID(ctx context.Context, userID, companyID int) error {
 	return r.db.WithContext(ctx).Model(&models.User{}).
 		Where("id = ?", userID).
 		Update("company_id", companyID).Error
+}
+
+func (r *UserRepo) GetEffectiveCompanyID(ctx context.Context, user *models.User, companyID int) (int, error) {
+	baseCompanyID := user.CompanyID
+	if companyID == 0 {
+		return baseCompanyID, nil
+	}
+	if user.Type == int16(models.UserTypeAdmin) || user.IsManager {
+		return companyID, nil
+	}
+
+	return baseCompanyID, ErrUnauthorizedCompanyAccess
 }

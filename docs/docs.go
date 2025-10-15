@@ -1092,13 +1092,13 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateLeadRequest"
+                            "$ref": "#/definitions/service.CreateLead"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "Returns lead and house IDs",
                         "schema": {
                             "$ref": "#/definitions/handler.LeadResponse"
                         }
@@ -1386,7 +1386,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/projects/3d": {
+        "/api/projects/external": {
             "post": {
                 "description": "Creates a 3D model from Google Earth data and calculates energy requirements and costs",
                 "consumes": [
@@ -1432,7 +1432,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/projects/3d/{id}": {
+        "/api/projects/external/{id}": {
             "get": {
                 "description": "Retrieves the status and details of a 3D solar project",
                 "produces": [
@@ -1486,7 +1486,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/projects/3d/{id}/files": {
+        "/api/projects/external/{id}/files": {
             "get": {
                 "description": "Downloads and retrieves 3D mesh files (JPG, OBJ, PLY, MTL) for a project",
                 "produces": [
@@ -2238,7 +2238,6 @@ const docTemplate = `{
                     "$ref": "#/definitions/handler.AddressRequest"
                 },
                 "company_id": {
-                    "description": "Required for creating new lead",
                     "type": "integer",
                     "example": 1
                 },
@@ -2263,7 +2262,6 @@ const docTemplate = `{
                     ]
                 },
                 "creator_id": {
-                    "description": "Required for creating new lead",
                     "type": "integer",
                     "example": 1
                 },
@@ -2278,7 +2276,6 @@ const docTemplate = `{
                     "example": 37.7749
                 },
                 "lead_id": {
-                    "description": "Optional: Link to existing lead",
                     "type": "integer",
                     "example": 123
                 },
@@ -2467,55 +2464,6 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.CreateLeadRequest": {
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string",
-                    "example": "123 Solar St, San Francisco, CA 94102"
-                },
-                "company_id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "create_3d_model": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "creator_id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "kwh_usage": {
-                    "type": "number",
-                    "example": 12000
-                },
-                "latitude": {
-                    "type": "number",
-                    "example": 37.7749
-                },
-                "longitude": {
-                    "type": "number",
-                    "example": -122.4194
-                },
-                "panel_count": {
-                    "type": "integer",
-                    "example": 30
-                },
-                "promo_code": {
-                    "type": "string",
-                    "example": "SOLAR2025"
-                },
-                "source": {
-                    "type": "integer",
-                    "example": 2
-                },
-                "system_size": {
-                    "type": "number",
-                    "example": 10.5
-                }
-            }
-        },
         "handler.DealResponse": {
             "type": "object",
             "properties": {
@@ -2592,89 +2540,17 @@ const docTemplate = `{
         "handler.LeadResponse": {
             "type": "object",
             "properties": {
-                "address": {
-                    "type": "string",
-                    "example": "123 Solar St, San Francisco, CA 94102"
-                },
-                "annual_production": {
-                    "type": "number",
-                    "example": 13000
-                },
-                "company_id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "created_at": {
-                    "type": "string",
-                    "example": "2024-01-15T10:30:00Z"
-                },
-                "creator_id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "external_lead_id": {
-                    "type": "integer",
-                    "example": 12345
-                },
-                "has_3d_model": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "kwh_usage": {
-                    "type": "number",
-                    "example": 12000
-                },
-                "latitude": {
-                    "type": "number",
-                    "example": 37.7749
-                },
-                "lightfusion_3d_house_id": {
-                    "type": "integer",
-                    "example": 456
-                },
-                "lightfusion_3d_project_id": {
+                "house_id": {
                     "type": "integer",
                     "example": 123
                 },
-                "longitude": {
-                    "type": "number",
-                    "example": -122.4194
-                },
-                "model_3d_status": {
-                    "type": "string",
-                    "example": "completed"
-                },
-                "panel_count": {
+                "lead_id": {
                     "type": "integer",
-                    "example": 30
+                    "example": 42
                 },
-                "promo_code": {
-                    "type": "string",
-                    "example": "SOLAR2025"
-                },
-                "source": {
-                    "type": "integer",
-                    "example": 2
-                },
-                "state": {
-                    "type": "integer",
-                    "example": 0
-                },
-                "sync_status": {
-                    "type": "string",
-                    "example": "synced"
-                },
-                "system_size": {
-                    "type": "number",
-                    "example": 10.5
-                },
-                "updated_at": {
-                    "type": "string",
-                    "example": "2024-01-15T10:30:00Z"
+                "success": {
+                    "type": "boolean",
+                    "example": true
                 }
             }
         },
@@ -3088,6 +2964,91 @@ const docTemplate = `{
                 "uuid": {
                     "type": "string",
                     "example": "550e8400-e29b-41d4-a716-446655440000"
+                }
+            }
+        },
+        "service.CreateLead": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string",
+                    "example": "123 Solar St, San Francisco, CA 94102"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "company_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "consumption": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "creator_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "hardware_type": {
+                    "type": "string"
+                },
+                "homeowner_email": {
+                    "type": "string"
+                },
+                "homeowner_name": {
+                    "type": "string"
+                },
+                "homeowner_phone": {
+                    "type": "string"
+                },
+                "kwh_usage": {
+                    "type": "number",
+                    "example": 12000
+                },
+                "latitude": {
+                    "type": "number",
+                    "example": 37.7749
+                },
+                "longitude": {
+                    "type": "number",
+                    "example": -122.4194
+                },
+                "lse_id": {
+                    "type": "integer"
+                },
+                "mode": {
+                    "type": "string"
+                },
+                "panel_count": {
+                    "type": "integer",
+                    "example": 30
+                },
+                "period": {
+                    "type": "string"
+                },
+                "sales_rep_email": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
+                },
+                "system_size": {
+                    "type": "number",
+                    "example": 10.5
+                },
+                "target_solar_offset": {
+                    "type": "integer"
+                },
+                "unit": {
+                    "type": "string"
+                },
+                "zip": {
+                    "type": "string"
                 }
             }
         },

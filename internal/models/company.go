@@ -34,13 +34,13 @@ func (Company) TableName() string {
 	return "companies"
 }
 
-// Sanitize will sanitize company name
+
 func (c *Company) Sanitize() {
 	c.Name = strings.TrimSpace(c.Name)
 	c.Slug = strings.ToLower(strings.ReplaceAll(strings.TrimSpace(c.Slug), " ", "-"))
 }
 
-// Validate will validate company
+
 func (c *Company) Validate() error {
 	if len(c.Name) == 0 || len(c.Name) > 250 {
 		return ErrInvalidCompanyName

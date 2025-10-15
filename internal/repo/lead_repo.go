@@ -8,17 +8,17 @@ import (
 	"gorm.io/gorm"
 )
 
-// LeadRepo handles lead database operations
+
 type LeadRepo struct {
 	db *gorm.DB
 }
 
-// NewLeadRepo creates a new lead repository
+
 func NewLeadRepo(db *gorm.DB) *LeadRepo {
 	return &LeadRepo{db: db}
 }
 
-// Create creates a new lead in the database
+
 func (r *LeadRepo) Create(ctx context.Context, lead *models.Lead) error {
 	if err := lead.Validate(); err != nil {
 		return fmt.Errorf("validation failed: %w", err)
@@ -32,11 +32,11 @@ func (r *LeadRepo) Create(ctx context.Context, lead *models.Lead) error {
 	return nil
 }
 
-// GetByID retrieves a lead by ID
+
 func (r *LeadRepo) GetByID(ctx context.Context, id int) (*models.Lead, error) {
 	var lead models.Lead
 	result := r.db.WithContext(ctx).First(&lead, id)
-	
+
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
 			return nil, models.ErrLeadNotFound
@@ -47,11 +47,11 @@ func (r *LeadRepo) GetByID(ctx context.Context, id int) (*models.Lead, error) {
 	return &lead, nil
 }
 
-// GetByExternalID retrieves a lead by external (LightFusion) ID
+
 func (r *LeadRepo) GetByExternalID(ctx context.Context, externalID int) (*models.Lead, error) {
 	var lead models.Lead
 	result := r.db.WithContext(ctx).Where("external_lead_id = ?", externalID).First(&lead)
-	
+
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
 			return nil, models.ErrLeadNotFound
@@ -62,11 +62,11 @@ func (r *LeadRepo) GetByExternalID(ctx context.Context, externalID int) (*models
 	return &lead, nil
 }
 
-// GetByLightFusionProjectID retrieves a lead by LightFusion 3D project ID
+
 func (r *LeadRepo) GetByLightFusionProjectID(ctx context.Context, projectID int) (*models.Lead, error) {
 	var lead models.Lead
 	result := r.db.WithContext(ctx).Where("lightfusion_3d_project_id = ?", projectID).First(&lead)
-	
+
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
 			return nil, models.ErrLeadNotFound
@@ -77,7 +77,7 @@ func (r *LeadRepo) GetByLightFusionProjectID(ctx context.Context, projectID int)
 	return &lead, nil
 }
 
-// Update updates an existing lead
+
 func (r *LeadRepo) Update(ctx context.Context, lead *models.Lead) error {
 	if err := lead.Validate(); err != nil {
 		return fmt.Errorf("validation failed: %w", err)
@@ -95,7 +95,7 @@ func (r *LeadRepo) Update(ctx context.Context, lead *models.Lead) error {
 	return nil
 }
 
-// Delete deletes a lead by ID
+
 func (r *LeadRepo) Delete(ctx context.Context, id int) error {
 	result := r.db.WithContext(ctx).Delete(&models.Lead{}, id)
 	if result.Error != nil {
@@ -109,7 +109,7 @@ func (r *LeadRepo) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-// List retrieves all leads with optional filters
+
 func (r *LeadRepo) List(ctx context.Context, companyID *int, creatorID *int, limit, offset int) ([]*models.Lead, int64, error) {
 	var leads []*models.Lead
 	var total int64
@@ -197,7 +197,7 @@ func (r *LeadRepo) UpdateSyncStatus(ctx context.Context, leadID int, status stri
 	updates := map[string]interface{}{
 		"sync_status": status,
 	}
-	
+
 	if externalID != nil {
 		updates["external_lead_id"] = *externalID
 		updates["last_synced_at"] = gorm.Expr("NOW()")
@@ -224,7 +224,7 @@ func (r *LeadRepo) Update3DModelStatus(ctx context.Context, leadID int, status s
 	updates := map[string]interface{}{
 		"model_3d_status": status,
 	}
-	
+
 	if status == "completed" {
 		updates["model_3d_completed_at"] = gorm.Expr("NOW()")
 	}
@@ -272,7 +272,7 @@ func (r *LeadRepo) BatchUpdate3DModelStatus(ctx context.Context, leadIDs []int, 
 		"model_3d_status": status,
 		"updated_at": gorm.Expr("NOW()"),
 	}
-	
+
 	if status == "completed" {
 		updates["model_3d_completed_at"] = gorm.Expr("NOW()")
 	}

@@ -28,7 +28,7 @@ func NewProject3DHandler(lightFusionClient *client.LightFusionClient, leadRepo *
 // Create3DProjectRequest represents the API request for creating a 3D project
 // @Description Request body for creating a 3D solar project with energy calculations
 type Create3DProjectRequest struct {
-	LeadID            *int             `json:"lead_id,omitempty" example:"123"`  // Optional: Link to existing lead
+	LeadID            *int             `json:"lead_id,omitempty" example:"123"`
 	Latitude          float64          `json:"latitude" example:"37.7749"`
 	Longitude         float64          `json:"longitude" example:"-122.4194"`
 	Address           AddressRequest   `json:"address"`
@@ -40,8 +40,8 @@ type Create3DProjectRequest struct {
 	TargetSolarOffset int              `json:"target_solar_offset" example:"100"`
 	Mode              *string          `json:"mode,omitempty" example:"max"`
 	Unit              string           `json:"unit" example:"kwh"`
-	CompanyID         int              `json:"company_id" example:"1"`  // Required for creating new lead
-	CreatorID         int              `json:"creator_id" example:"1"`  // Required for creating new lead
+	CompanyID         int              `json:"company_id" example:"1"`
+	CreatorID         int              `json:"creator_id" example:"1"`
 }
 
 type AddressRequest struct {
@@ -88,26 +88,24 @@ type Create3DProjectResponse struct {
 // @Success 201 {object} Create3DProjectResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /api/projects/3d [post]
+// @Router /api/projects/external [post]
 func (h *Project3DHandler) Create3DProject(w http.ResponseWriter, r *http.Request) {
 	var req Create3DProjectRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid request body")
+		respondError(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}
 
-	// Validate required fields
 	if req.Latitude == 0 || req.Longitude == 0 {
-		respondWithError(w, http.StatusBadRequest, "Latitude and longitude are required")
+		respondError(w, http.StatusBadRequest, "Latitude and longitude are required")
 		return
 	}
 
 	if req.Address.Street == "" || req.Address.City == "" {
-		respondWithError(w, http.StatusBadRequest, "Address details are required")
+		respondError(w, http.StatusBadRequest, "Address details are required")
 		return
 	}
 
-	// Convert to LightFusion API format
 	lightFusionReq := client.Create3DProjectRequest{
 		Latitude:  req.Latitude,
 		Longitude: req.Longitude,
@@ -140,15 +138,14 @@ func (h *Project3DHandler) Create3DProject(w http.ResponseWriter, r *http.Reques
 
 	resp, err := h.lightFusionClient.Create3DProject(r.Context(), lightFusionReq)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Failed to create 3D project: "+err.Error())
+		respondError(w, http.StatusInternalServerError, "Failed to create 3D project: "+err.Error())
 		return
 	}
 	fmt.Printf("\n\n Response: %v\n", resp)
 
-	// Sync with local lead if lead_id was provided or create new lead
+
 	var lead *models.Lead
 	if req.LeadID != nil {
-		// Update existing lead with 3D project info
 		lead, err = h.leadRepo.GetByID(r.Context(), *req.LeadID)
 		if err != nil {
 			log.Printf("Warning: Could not find lead with ID %d to update: %v", *req.LeadID, err)
@@ -159,7 +156,6 @@ func (h *Project3DHandler) Create3DProject(w http.ResponseWriter, r *http.Reques
 			}
 		}
 	} else {
-		// Create new lead with 3D project info
 		lead = &models.Lead{
 			CompanyID:        req.CompanyID,
 			CreatorID:        req.CreatorID,
@@ -190,7 +186,7 @@ func (h *Project3DHandler) Create3DProject(w http.ResponseWriter, r *http.Reques
 		Message:          "3D project created successfully. Processing in background.",
 	}
 
-	respondWithJSON(w, http.StatusCreated, response)
+	respondJSON(w, http.StatusCreated, response)
 }
 
 // GetProjectStatus godoc
@@ -204,7 +200,7 @@ func (h *Project3DHandler) Create3DProject(w http.ResponseWriter, r *http.Reques
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /api/projects/3d/{id} [get]
+// @Router /api/projects/external/{id} [get]
 func (h *Project3DHandler) GetProjectStatus(w http.ResponseWriter, r *http.Request) {
 	var projectID int
 	_, err := fmt.Sscanf(r.URL.Path, "/api/projects/3d/%d", &projectID)
@@ -213,7 +209,7 @@ func (h *Project3DHandler) GetProjectStatus(w http.ResponseWriter, r *http.Reque
 		if err != nil {
 			errMsg := fmt.Sprintf("Invalid project ID in path '%s': %v", r.URL.Path, err)
 			log.Printf("Error: %s", errMsg)
-			respondWithError(w, http.StatusBadRequest, errMsg)
+			respondError(w, http.StatusBadRequest, errMsg)
 			return
 		}
 	}
@@ -221,7 +217,7 @@ func (h *Project3DHandler) GetProjectStatus(w http.ResponseWriter, r *http.Reque
 	if projectID == 0 {
 		errMsg := "Project ID cannot be 0"
 		log.Printf("Error: %s", errMsg)
-		respondWithError(w, http.StatusBadRequest, errMsg)
+		respondError(w, http.StatusBadRequest, errMsg)
 		return
 	}
 	houseIDStr := r.URL.Query().Get("house_id")
@@ -229,13 +225,13 @@ func (h *Project3DHandler) GetProjectStatus(w http.ResponseWriter, r *http.Reque
 	if err != nil || houseID == 0 {
 		errMsg := fmt.Sprintf("Invalid or missing house_id query param: '%s'", houseIDStr)
 		log.Printf("Error: %s", errMsg)
-		respondWithError(w, http.StatusBadRequest, errMsg)
+		respondError(w, http.StatusBadRequest, errMsg)
 		return
 	}
 	if houseID == 0 {
 		errMsg := "House ID cannot be 0"
 		log.Printf("Error: %s", errMsg)
-		respondWithError(w, http.StatusBadRequest, errMsg)
+		respondError(w, http.StatusBadRequest, errMsg)
 		return
 	}
 
@@ -252,13 +248,12 @@ func (h *Project3DHandler) GetProjectStatus(w http.ResponseWriter, r *http.Reque
 			statusCode = http.StatusUnauthorized
 		}
 
-		respondWithError(w, statusCode, errMsg)
+		respondError(w, statusCode, errMsg)
 		return
 	}
 
 	log.Printf("Successfully retrieved project status for ID %d", projectID)
 
-	// Try to update lead status if we have the lead completion data
 	if resp.LeadCompletion != nil {
 		leadData := resp.LeadCompletion.Lead
 		lead, err := h.leadRepo.GetByExternalID(r.Context(), leadData.ID)
@@ -283,7 +278,7 @@ func (h *Project3DHandler) GetProjectStatus(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	respondWithJSON(w, http.StatusOK, resp)
+	respondJSON(w, http.StatusOK, resp)
 }
 
 // GetProjectFiles3D godoc
@@ -296,7 +291,7 @@ func (h *Project3DHandler) GetProjectStatus(w http.ResponseWriter, r *http.Reque
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /api/projects/3d/{id}/files [get]
+// @Router /api/projects/external/{id}/files [get]
 func (h *Project3DHandler) GetProjectFiles3D(w http.ResponseWriter, r *http.Request) {
 	var projectID int
 	_, err := fmt.Sscanf(r.URL.Path, "/api/projects/3d/%d/files", &projectID)
@@ -305,15 +300,14 @@ func (h *Project3DHandler) GetProjectFiles3D(w http.ResponseWriter, r *http.Requ
 		if err != nil {
 			errMsg := fmt.Sprintf("Invalid project ID in path '%s': %v", r.URL.Path, err)
 			log.Printf("Error: %s", errMsg)
-			respondWithError(w, http.StatusBadRequest, errMsg)
+			respondError(w, http.StatusBadRequest, errMsg)
 			return
 		}
 	}
-
 	if projectID == 0 {
 		errMsg := "Project ID cannot be 0"
 		log.Printf("Error: %s", errMsg)
-		respondWithError(w, http.StatusBadRequest, errMsg)
+		respondError(w, http.StatusBadRequest, errMsg)
 		return
 	}
 
@@ -330,22 +324,11 @@ func (h *Project3DHandler) GetProjectFiles3D(w http.ResponseWriter, r *http.Requ
 			statusCode = http.StatusUnauthorized
 		}
 
-		respondWithError(w, statusCode, errMsg)
+		respondError(w, statusCode, errMsg)
 		return
 	}
 
 	log.Printf("Successfully retrieved project files for ID %d", projectID)
 
-	respondWithJSON(w, http.StatusOK, resp)
-}
-
-func respondWithError(w http.ResponseWriter, code int, message string) {
-	respondWithJSON(w, code, map[string]string{"error": message})
-}
-
-func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
-	response, _ := json.Marshal(payload)
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	w.Write(response)
+	respondJSON(w, http.StatusOK, resp)
 }

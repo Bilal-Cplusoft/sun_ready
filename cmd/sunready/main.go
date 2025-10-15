@@ -69,6 +69,7 @@ func main() {
 	dealRepo := repo.NewDealRepo(db)
 	quoteRepo := repo.NewQuoteRepo(db)
 	leadRepo := repo.NewLeadRepo(db)
+	houseRepo := repo.NewHouseRepo(db)
 
 	lightFusionClient,twilioClient,sendGridClient := client.NewLightFusionClient(lightFusionURL, lightFusionAPIKey),client.InitializeTwilio(),client.InitializeSendGrid()
 
@@ -91,6 +92,7 @@ func main() {
 	projectService := service.NewProjectService(projectRepo)
 	dealService := service.NewDealService(dealRepo)
 	quoteService := service.NewQuoteService(quoteRepo)
+	leadService := service.NewLeadService(leadRepo,houseRepo)
 
 	authHandler := handler.NewAuthHandler(authService,sendGridClient)
 	userHandler := handler.NewUserHandler(userService)
@@ -99,7 +101,7 @@ func main() {
 	project3DHandler := handler.NewProject3DHandler(lightFusionClient, leadRepo)
 	dealHandler := handler.NewDealHandler(dealService)
 	quoteHandler := handler.NewQuoteHandler(quoteService)
-	leadHandler := handler.NewLeadHandler(leadRepo, lightFusionClient)
+	leadHandler := handler.NewLeadHandler(leadRepo, lightFusionClient,leadService,userRepo)
 	otpHandler := handler.NewOtpHandler(twilioClient)
 
 	r := chi.NewRouter()
@@ -150,9 +152,9 @@ func main() {
 	r.Post("/api/deals/{id}/unarchive", dealHandler.Unarchive)
 	r.Get("/api/deals", dealHandler.List)
 
-	r.Post("/api/projects/3d", project3DHandler.Create3DProject)
-	r.Get("/api/projects/3d/{id}", project3DHandler.GetProjectStatus)
-	r.Get("/api/projects/3d/{id}/files", project3DHandler.GetProjectFiles3D)
+	r.Post("/api/projects/external", project3DHandler.Create3DProject)
+	r.Get("/api/projects/external/{id}", project3DHandler.GetProjectStatus)
+	r.Get("/api/projects/external/{id}/files", project3DHandler.GetProjectFiles3D)
 
 	r.Post("/api/quote", quoteHandler.GetQuote)
 

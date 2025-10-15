@@ -60,14 +60,7 @@ The API will be available at `http://localhost:8080`
 
 
 ## Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | Required |
-| `JWT_SECRET` | Secret key for JWT signing | Required |
-| `PORT` | Server port | `8080` |
-| `ENV` | Environment (development/production) | `development` |
-
+Inside env.example at /
 
 ## Security Notes
 
